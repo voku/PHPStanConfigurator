@@ -1,0 +1,27 @@
+<svg width="1200" height="630" viewBox="0 0 1200 630" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="630" rx="24" fill="#020617"/>
+  <rect x="32" y="32" width="1136" height="566" rx="22" fill="url(#paint0_linear_1_2)" stroke="#334155"/>
+  <circle cx="998" cy="102" r="122" fill="#4338CA" fill-opacity="0.18"/>
+  <circle cx="1112" cy="562" r="160" fill="#22C55E" fill-opacity="0.12"/>
+  <rect x="104" y="118" width="138" height="138" rx="28" fill="#312E81"/>
+  <rect x="160" y="174" width="138" height="138" rx="28" fill="#22C55E" fill-opacity="0.9"/>
+  <path d="M130 304V149H210.464C244.063 149 265.5 166.141 265.5 194.102C265.5 216.195 252.173 230.572 228.703 235.157L267.292 304H226.819L192.516 241.072H173.147V304H130ZM173.147 214.147H205.078C223.358 214.147 232.548 206.499 232.548 192.247C232.548 177.994 223.358 170.221 205.078 170.221H173.147V214.147Z" fill="white"/>
+  <text x="358" y="196" fill="white" font-family="Inter, Arial, sans-serif" font-size="64" font-weight="700">PHPStan Configurator</text>
+  <text x="358" y="258" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="500">Build production-ready PHPStan configs with presets, imports, CI snippets,</text>
+  <text x="358" y="298" fill="#CBD5E1" font-family="Inter, Arial, sans-serif" font-size="28" font-weight="500">and deterministic phpstan.neon.dist exports.</text>
+  <rect x="360" y="354" width="220" height="48" rx="24" fill="#1E293B"/>
+  <rect x="596" y="354" width="188" height="48" rx="24" fill="#1E293B"/>
+  <rect x="800" y="354" width="182" height="48" rx="24" fill="#1E293B"/>
+  <text x="391" y="385" fill="#E2E8F0" font-family="JetBrains Mono, monospace" font-size="20" font-weight="700">Preset blueprints</text>
+  <text x="626" y="385" fill="#E2E8F0" font-family="JetBrains Mono, monospace" font-size="20" font-weight="700">NEON import</text>
+  <text x="830" y="385" fill="#E2E8F0" font-family="JetBrains Mono, monospace" font-size="20" font-weight="700">CI snippets</text>
+  <rect x="358" y="458" width="484" height="88" rx="18" fill="#0F172A" stroke="#334155"/>
+  <text x="388" y="507" fill="#818CF8" font-family="JetBrains Mono, monospace" font-size="24" font-weight="700">voku.github.io/PHPStanConfigurator</text>
+  <text x="388" y="536" fill="#94A3B8" font-family="Inter, Arial, sans-serif" font-size="22" font-weight="500">Static Vite deployment with GitHub Pages support</text>
+  <defs>
+    <linearGradient id="paint0_linear_1_2" x1="72" y1="56" x2="1116" y2="574" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A"/>
+      <stop offset="1" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+</svg>
