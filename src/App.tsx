@@ -129,11 +129,6 @@ export default function App() {
       alerts.push("Conflict warning: Coexistence of a baseline with bleedingEdge strict preset can suppress critical new syntax warnings from the next release.");
     }
 
-    // Level 9 check missing generic warning
-    if (cfg.level === '9' && !cfg.strictRules.checkMissingIterableValueType) {
-      alerts.push("Inconsistency: Level 9 is active, but checkMissingIterableValueType is disabled. For absolute type safety, this should remain enabled.");
-    }
-
     setValidationAlerts(alerts);
   };
   
@@ -254,8 +249,6 @@ export default function App() {
       bootstrapFiles: parsed.bootstrapFiles ?? config.bootstrapFiles,
       autoloadFiles: parsed.autoloadFiles ?? config.autoloadFiles,
       strictRules: {
-        checkMissingIterableValueType: parsed.strictRules?.checkMissingIterableValueType ?? config.strictRules.checkMissingIterableValueType,
-        checkGenericClassInNonGenericObjectType: parsed.strictRules?.checkGenericClassInNonGenericObjectType ?? config.strictRules.checkGenericClassInNonGenericObjectType,
         treatPhpDocTypesAsCertain: parsed.strictRules?.treatPhpDocTypesAsCertain ?? config.strictRules.treatPhpDocTypesAsCertain,
         bleedingEdge: parsed.strictRules?.bleedingEdge ?? config.strictRules.bleedingEdge,
         reportUnmatchedIgnoredErrors: parsed.strictRules?.reportUnmatchedIgnoredErrors ?? config.strictRules.reportUnmatchedIgnoredErrors,
@@ -999,54 +992,6 @@ export default function App() {
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 
-                {/* checkMissingIterableValueType */}
-                <div 
-                  className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
-                  onMouseEnter={() => setHoveredRule('checkMissingIterableValueType')}
-                  onMouseLeave={() => setHoveredRule(null)}
-                  onClick={() => setConfig(prev => ({
-                    ...prev,
-                    strictRules: { ...prev.strictRules, checkMissingIterableValueType: !(prev.strictRules.checkMissingIterableValueType ?? true) }
-                  }))}
-                >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={config.strictRules.checkMissingIterableValueType ?? true}
-                    className="mt-1 accent-indigo-600 border border-slate-300 rounded focus:ring-0"
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-800 select-none">Force Iterable Types</label>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      E.g. requires specifying array value types like array&lt;int, string&gt; instead of raw array.
-                    </p>
-                  </div>
-                </div>
-
-                {/* checkGenericClassInNonGenericObjectType */}
-                <div 
-                  className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
-                  onMouseEnter={() => setHoveredRule('checkGenericClassInNonGenericObjectType')}
-                  onMouseLeave={() => setHoveredRule(null)}
-                  onClick={() => setConfig(prev => ({
-                    ...prev,
-                    strictRules: { ...prev.strictRules, checkGenericClassInNonGenericObjectType: !(prev.strictRules.checkGenericClassInNonGenericObjectType ?? true) }
-                  }))}
-                >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={config.strictRules.checkGenericClassInNonGenericObjectType ?? true}
-                    className="mt-1 accent-indigo-600 border border-slate-300 rounded focus:ring-0"
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-800 select-none">Force Generic Objects</label>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Enforces template mappings on generic class definitions (such as Collection&lt;User&gt;).
-                    </p>
-                  </div>
-                </div>
-
                 {/* treatPhpDocTypesAsCertain */}
                 <div 
                   className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
@@ -1090,7 +1035,7 @@ export default function App() {
                   <div>
                     <label className="block text-xs font-semibold text-slate-800 select-none">Enable Bleeding Edge</label>
                     <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Loads experimental rulesets/upcoming features early inside the primary analyzer context.
+                      Includes PHPStan’s documented Bleeding Edge ruleset for next-major rules, fixes, and behaviour changes.
                     </p>
                   </div>
                 </div>
@@ -1138,7 +1083,7 @@ export default function App() {
                   <div>
                     <label className="block text-xs font-semibold text-slate-800 select-none">Check Implicit Mixed</label>
                     <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Triggers errors on untyped elements and implicit mixed parameters (extremely recommendation level 9+).
+                      Enables the level-10 implicit mixed checks early, even when you are still below PHPStan level 10.
                     </p>
                   </div>
                 </div>
@@ -1162,7 +1107,7 @@ export default function App() {
                   <div>
                     <label className="block text-xs font-semibold text-slate-800 select-none">Check Benevolent Unions</label>
                     <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Strictly evaluates loose or implicit built-in standard library union types to prevent method call assumptions.
+                      Tightens checks for benevolent unions like array-key that PHPStan normally keeps lenient even at high levels.
                     </p>
                   </div>
                 </div>

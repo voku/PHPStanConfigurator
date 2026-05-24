@@ -17,16 +17,16 @@ export const PHP_VERSIONS = [
 
 export const PHPSTAN_LEVEL_GUARDS = [
   { level: '0', title: 'Level 0: Sanity Check', desc: 'Basic checks, unknown classes, unknown functions, missing arguments, incorrect counts.', strictnessLabel: 'Minimal checks', color: 'text-slate-500' },
-  { level: '1', title: 'Level 1: Basic Structure', desc: 'Possibly undefined variables, unknown magic methods, incorrect property accesses.', strictnessLabel: 'Basic syntax checks', color: 'text-slate-600' },
-  { level: '2', title: 'Level 2: Strict Calls', desc: 'Unknown classes/methods in helper docs. Enforces annotations accuracy. Great first goal!', strictnessLabel: 'Standard API checks', color: 'text-emerald-600' },
-  { level: '3', title: 'Level 3: Return & Assign Mismatch', desc: 'Return types, property assignment types, and parameter checks on arrays/iterables.', strictnessLabel: 'Type assignment verified', color: 'text-emerald-700' },
+  { level: '1', title: 'Level 1: Basic Structure', desc: 'Possibly undefined variables, unknown magic methods, and unknown magic properties on classes with __call and __get.', strictnessLabel: 'Basic syntax checks', color: 'text-slate-600' },
+  { level: '2', title: 'Level 2: Strict Calls', desc: 'Checks unknown methods on all expressions and starts validating PHPDoc types.', strictnessLabel: 'Standard API checks', color: 'text-emerald-600' },
+  { level: '3', title: 'Level 3: Return & Assign Mismatch', desc: 'Reports return type mismatches and invalid types assigned to properties.', strictnessLabel: 'Type assignment verified', color: 'text-emerald-700' },
   { level: '4', title: 'Level 4: Unreachable & Dead Code', desc: 'Unreachable code blocks, always-true/false comparisons, dead catch blocks.', strictnessLabel: 'Dead branch checked', color: 'text-indigo-600' },
   { level: '5', title: 'Level 5: Strict Call Argument Types', desc: 'Checks type safety of values passed to functions and methods strictly against signatures.', strictnessLabel: 'Strict argument checks', color: 'text-indigo-700' },
-  { level: '6', title: 'Level 6: Missing Type Annotations', desc: 'Enforces adding missing type hints for iterables/arrays (e.g. string[] instead of array).', strictnessLabel: 'Missing iterable check', color: 'text-indigo-700' },
+  { level: '6', title: 'Level 6: Missing Type Hints', desc: 'Reports missing typehints so parameters, returns, and properties become explicit.', strictnessLabel: 'Missing typehints reported', color: 'text-indigo-700' },
   { level: '7', title: 'Level 7: Union Mismatches', desc: 'Partially null or invalid method calls on union types (e.g. calling method on User|null).', strictnessLabel: 'Union type verified', color: 'text-amber-600' },
   { level: '8', title: 'Level 8: Nullable access checks', desc: 'Reports method calls and property access on nullable values. Recommended default for maintained application code.', strictnessLabel: 'Nullable access checks', color: 'text-rose-600' },
-  { level: '9', title: 'Level 9: Mixed Types Banished', desc: 'Explicitly forbids "mixed" types. Everything must be structural. The ultimate code shield.', strictnessLabel: 'Mixed types banished', color: 'text-rose-700 font-semibold' },
-  { level: '10', title: 'Level 10: Full Strictness', desc: 'Enforces strict typing on all method results, variables, list values, check array values are not empty, and complete generics checks.', strictnessLabel: 'Maximum type strictness', color: 'text-red-600 font-extrabold' },
+  { level: '9', title: 'Level 9: Explicit Mixed Strictness', desc: 'Be strict about explicit mixed: the only safe operation is passing it to another mixed.', strictnessLabel: 'Explicit mixed locked down', color: 'text-rose-700 font-semibold' },
+  { level: '10', title: 'Level 10: Implicit Mixed Strictness', desc: 'Adds level-10 checks for implicit mixed too, not just explicitly declared mixed.', strictnessLabel: 'Maximum type strictness', color: 'text-red-600 font-extrabold' },
 ];
 
 export const DEFAULT_CONFIG: PhpStanConfig = {
@@ -38,8 +38,6 @@ export const DEFAULT_CONFIG: PhpStanConfig = {
   bootstrapFiles: [],
   autoloadFiles: [],
   strictRules: {
-    checkMissingIterableValueType: true,
-    checkGenericClassInNonGenericObjectType: true,
     treatPhpDocTypesAsCertain: true,
     bleedingEdge: false,
     reportUnmatchedIgnoredErrors: true,
@@ -83,8 +81,6 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: true,
-        checkGenericClassInNonGenericObjectType: true,
         treatPhpDocTypesAsCertain: true,
         bleedingEdge: false,
       },
@@ -114,8 +110,6 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: true,
-        checkGenericClassInNonGenericObjectType: true,
         treatPhpDocTypesAsCertain: true,
         bleedingEdge: false,
       },
@@ -145,8 +139,6 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: true,
-        checkGenericClassInNonGenericObjectType: true,
         treatPhpDocTypesAsCertain: true,
         bleedingEdge: false,
       },
@@ -166,7 +158,7 @@ export const PRESETS: Preset[] = [
     strictness: 'High',
     category: 'Security Focused',
     target: 'Open-Source Library',
-    description: 'Extremely strict layout for libraries and public interfaces. Enforces explicit typing and turns on bleedingEdge to ensure long-term static resilience.',
+    description: 'Extremely strict layout for libraries and public interfaces. Keeps PHPDoc trust explicit and includes Bleeding Edge for earlier PHPStan 2.x checks.',
     config: {
       level: '9',
       targetVersion: '2.x',
@@ -176,8 +168,6 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: true,
-        checkGenericClassInNonGenericObjectType: true,
         treatPhpDocTypesAsCertain: true,
         bleedingEdge: true,
       },
@@ -207,8 +197,6 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: false,
-        checkGenericClassInNonGenericObjectType: false,
         treatPhpDocTypesAsCertain: false,
         bleedingEdge: false,
       },
@@ -238,8 +226,6 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: false,
-        checkGenericClassInNonGenericObjectType: false,
         treatPhpDocTypesAsCertain: false,
         bleedingEdge: false,
       },
@@ -263,7 +249,7 @@ export const PRESETS: Preset[] = [
     strictness: 'High',
     category: 'Performance Focused',
     target: 'Continuous Integration Guard',
-    description: 'Enforces phpstan level max with bleedingEdge enabled. Best for pipelines validating merge requests before deploy. Strict, secure, and aggressive ruleset.',
+    description: 'Enforces phpstan level max with Bleeding Edge included. Best for pipelines validating merge requests before deploy. Strict and aggressive by design.',
     config: {
       level: 'max',
       targetVersion: '2.x',
@@ -273,10 +259,9 @@ export const PRESETS: Preset[] = [
       bootstrapFiles: [],
       autoloadFiles: [],
       strictRules: {
-        checkMissingIterableValueType: true,
-        checkGenericClassInNonGenericObjectType: true,
         treatPhpDocTypesAsCertain: true,
         bleedingEdge: true,
+        checkImplicitMixed: true,
       },
       extensions: {
         doctrine: false,
@@ -292,38 +277,28 @@ export const PRESETS: Preset[] = [
 export const RULE_EXPLANATIONS: Record<string, { summary: string; rationale: string; trades: string }> = {
   level: {
     summary: 'The main knob for static testing strictness.',
-    rationale: 'PHPStan has levels 0 to 9. Level 0 is lax (only crashes), Level 8/9 is extremely strict. Progressing through levels ensures your code has no structural dead-ends or unexpected type drifts.',
-    trades: 'Higher levels require complete type-hinting of variables, docs, and union parameters which might require refactoring some legacy arrays.',
-  },
-  checkMissingIterableValueType: {
-    summary: 'Enforces specifying types within array traversables.',
-    rationale: 'Instead of accepting a raw "array", it forces you to declare "array<string, User>" or similar. This lets PHPStan know exactly what is inside the array during loops.',
-    trades: 'Requires writing detailed PHPDoc notations for nested lists or structures.',
-  },
-  checkGenericClassInNonGenericObjectType: {
-    summary: 'Flags non-generic usage of generic classes.',
-    rationale: 'If a class is defined as UserRepository<User>, using UserRepository on its own without defining context is flagged.',
-    trades: 'If dependencies are poorly configured, this can generate noise, but it makes class interactions extremely robust.',
+    rationale: 'PHPStan 2.x has levels 0 to 10, and max is an alias for the highest available level. Progressing through the levels raises the strictness step by step so you can adopt stronger analysis without losing track of why new findings appear.',
+    trades: 'Higher levels demand more complete typing, and max can become stricter automatically when you upgrade PHPStan.',
   },
   treatPhpDocTypesAsCertain: {
-    summary: 'Trusts docblock type-declarations unconditionally.',
-    rationale: 'If comments say "@var User $user", PHPStan treats $user as a User. Turning this off tells PHPStan to verify if the comment is actually true.',
-    trades: 'Disabling this causes checks on whether you over-asserted types that PHP can\'t natively restrict, which is useful to detect incorrect typing in older dependencies.',
+    summary: 'Controls whether PHPDoc types are treated as certain.',
+    rationale: 'PHPStan 2.x treats PHPDoc and native types as equally certain by default. Setting this to false relaxes some checks, which is useful for public libraries or projects that do not want to trust every caller-facing PHPDoc.',
+    trades: 'Turning it off can reduce false positives around consumer code, but it also gives up some precision when your PHPDoc is already accurate.',
   },
   bleedingEdge: {
-    summary: 'Enables upcoming rules and experimental features before next major release.',
-    rationale: 'PHPStan is constantly improving. BleedingEdge loads the next version\'s features immediately so you are ahead of breaking changes.',
-    trades: 'Updates to PHPStan may occasionally introduce fresh errors in your codebase due to strict rules.',
+    summary: 'Includes PHPStan’s Bleeding Edge ruleset.',
+    rationale: 'In PHPStan 2.x, Bleeding Edge is enabled by including the dedicated bleedingEdge.neon file. It previews rules, behaviour changes, bug fixes, and performance improvements that are planned for the next major release.',
+    trades: 'You get new analysis improvements sooner, but upgrades can surface fresh findings earlier than on the stable defaults.',
   },
   bootstrapFiles: {
-    summary: 'File loaded before indexer parsing.',
-    rationale: 'Allows defining constants, loading custom helper macros, or setting global container references so PHPStan doesn\'t fail with "Unknown constant/function".',
-    trades: 'Cannot contain code executed synchronously, only helper bootstraps.',
+    summary: 'Files executed before PHPStan starts analysing code.',
+    rationale: 'Use bootstrapFiles for runtime initialization that PHPStan needs, like a custom autoloader, class aliases, constants, or PHAR loading. These files are actually executed by PHP before analysis begins.',
+    trades: 'Because they run at analysis time, bootstrap files should stay deterministic and limited to setup code.',
   },
   autoloadFiles: {
-    summary: 'Files registered for composer autoload bypass.',
-    rationale: 'Tells PHPStan where custom procedural PHP blocks or global mock wrappers lie in case Composer is not fully used.',
-    trades: 'Legacy helper - usually bootstrapFiles or a custom autoloader mapping is preferred today.',
+    summary: 'Extra files scanned through PHPStan’s scanFiles option.',
+    rationale: 'scanFiles lets PHPStan discover symbols from standalone files that are outside analysed paths or Composer autoloading. This is useful for global functions, constants, or helper definitions that should be known during analysis.',
+    trades: 'These files are parsed for symbols, not executed like bootstrapFiles, so runtime setup still belongs in bootstrapFiles.',
   },
   baseline: {
     summary: 'A baseline file to suppress existing technical debt.',
@@ -342,17 +317,17 @@ export const RULE_EXPLANATIONS: Record<string, { summary: string; rationale: str
   },
   reportUnmatchedIgnoredErrors: {
     summary: 'Reports ignored errors that no longer occur in the code.',
-    rationale: 'Keeps your configuration file clean. If you use ignoreErrors to suppress issues, PHPStan will alert you if an ignored line gets refactored and no longer generates that error.',
-    trades: 'Can create minor noise in active refactoring, but maintains pristine rules files.',
+    rationale: 'Keeps ignoreErrors tidy by flagging patterns that no longer match any reported error. This is part of normal PHPStan 2.x configuration and helps prevent stale suppressions from silently piling up.',
+    trades: 'Large refactors can temporarily surface cleanup work, but the config stays honest.',
   },
   checkImplicitMixed: {
-    summary: 'Flags implicit mixed types from missing type hints.',
-    rationale: 'Ensures strict type checking where types cannot be resolved due to missing return signatures or undefined arguments, forcing strong schema assertions.',
-    trades: 'Extremely strict, may require significant type definition work on medium-sized legacy codebases.',
+    summary: 'Enables level-10-style checks for implicit mixed.',
+    rationale: 'PHPStan 2.x level 10 reports implicit mixed, not just explicit mixed. This switch lets you opt into that stricter behaviour even when you are not otherwise running level 10.',
+    trades: 'Expect more findings in code that still relies on missing type declarations.',
   },
   checkBenevolentUnionTypes: {
-    summary: 'Enforces strict checking on benevolent union types.',
-    rationale: 'Benevolent union types are loose type wrappers (e.g., from native php internal functions). Enforcing checks prevents assumptions and uncovers hidden bugs.',
-    trades: 'Increases typing strictness on built-in function returns.',
+    summary: 'Strictly checks benevolent union types like array-key.',
+    rationale: 'Benevolent union types stay lenient even at the highest core level. Enabling this option tightens those checks so PHPStan reports unsafe assumptions around array keys and similar helper types.',
+    trades: 'It improves precision, but can add findings in code that depended on PHPStan’s usual leniency here.',
   },
 };
