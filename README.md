@@ -34,6 +34,8 @@ npm run dev
 
 The app is served locally at `http://localhost:3000`.
 
+No environment variables are required for the static GitHub Pages build.
+
 ## Available scripts
 
 ```bash
@@ -63,13 +65,13 @@ The workflow uses `npm ci`, runs `npm run build:pages`, uploads `dist/`, and pub
 
 ## Key files
 
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/src/App.tsx` – main UI and state orchestration
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/src/data/rules.ts` – presets, defaults, and PHPStan level metadata
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/src/lib/neon.ts` – Neon rendering and import parsing logic
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/src/components/ExportModal.tsx` – export UX and Composer install command generation
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/src/components/CiPipelines.tsx` – CI pipeline snippet generation
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/server.ts` – local Express server used outside GitHub Pages deployments
-- `/home/runner/work/PHPStanConfigurator/PHPStanConfigurator/.github/workflows/deploy-pages.yml` – automated GitHub Pages deployment
+- `src/App.tsx` – main UI and state orchestration
+- `src/data/rules.ts` – presets, defaults, and PHPStan level metadata
+- `src/lib/neon.ts` – Neon rendering and import parsing logic
+- `src/components/ExportModal.tsx` – export UX and Composer install command generation
+- `src/components/CiPipelines.tsx` – CI pipeline snippet generation
+- `server.ts` – local Express server used outside GitHub Pages deployments
+- `.github/workflows/deploy-pages.yml` – automated GitHub Pages deployment
 
 ## “Key Files Detector” helper prompt
 
