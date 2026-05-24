@@ -1,0 +1,6 @@
+{
+  "name": "PHPStan Configurator",
+  "description": "PhpStan configurator by Lars Moelleken (voku): provides a clean, seamless, type-safe interface to configure PHPStan rules, parameters, extensions, and baselines dynamically.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
