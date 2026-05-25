@@ -450,7 +450,7 @@ export default function App() {
       <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
         
         {/* Left Interactive Parameters Form Sheet */}
-        <div className="lg:col-span-7 space-y-6 order-2 lg:order-1">
+        <div className="lg:col-span-7 space-y-6 order-2 lg:order-1 min-w-0">
                    {/* Step 1: Configuration Source & Blueprint Hub */}
           <section id="project-start-profile-section" className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
             <div>
@@ -467,7 +467,7 @@ export default function App() {
 
             {/* Start Source Tabs Selection with rich icons */}
             <div className="space-y-4">
-              <div className="flex gap-1 px-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 px-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
                 {[
                   { id: 'composer', label: 'Scan composer.json', icon: <Terminal className="w-3.5 h-3.5" /> },
                   { id: 'preset', label: 'Preset Blueprints', icon: <Compass className="w-3.5 h-3.5" /> },
@@ -477,7 +477,7 @@ export default function App() {
                     key={t.id}
                     type="button"
                     onClick={() => setStartMode(t.id)}
-                    className={`flex-1 py-2 px-2 rounded-lg text-center font-bold text-[10px] sm:text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                    className={`min-w-0 py-2 px-2 rounded-lg text-center font-bold text-[10px] sm:text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 ${
                       startMode === t.id
                         ? 'bg-indigo-600 text-white shadow-md font-semibold'
                         : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
@@ -1274,7 +1274,7 @@ export default function App() {
         </div>
 
         {/* Right Preview column layout */}
-        <div className="lg:col-span-5 space-y-6 order-1 lg:order-2">
+        <div className="lg:col-span-5 space-y-6 order-1 lg:order-2 min-w-0 overflow-x-hidden">
           
           {/* Real-time formatted Neon visual codesheet */}
           <NeonEditor
