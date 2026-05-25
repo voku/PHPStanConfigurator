@@ -40,7 +40,7 @@ export default function App() {
   // General Configuration State
   const [config, setConfig] = useState<PhpStanConfig>({ ...DEFAULT_CONFIG });
   const [activePresetId, setActivePresetId] = useState<string>('modern'); // default modern
-  const [startMode, setStartMode] = useState<string>('composer');
+  const [startMode, setStartMode] = useState<'composer' | 'import' | null>(null);
   const [importText, setImportText] = useState('');
   const [composerText, setComposerText] = useState('');
   const [localComposerStatus, setLocalComposerStatus] = useState<{ message: string; type: 'success' | 'error' | null; detected: string[] }>({
