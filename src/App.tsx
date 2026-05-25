@@ -145,28 +145,55 @@ export default function App() {
         throw new Error('Could not read package properties from keys "require" or "require-dev".');
       }
 
-      const detectedList: string[] = [];
-      const updatedExtensions = (config.extensions.selectedExtensions || []).map(ext => {
-        let enabled = ext.enabled;
-        const mappedComposer = ext.id === 'sidz-rules' ? 'sidz/phpstan-rules' :
-                               ext.id === 'voku-rules' ? 'voku/' :
-                               ext.id === 'strict-rules' ? 'phpstan/phpstan-strict-rules' :
-                               ext.id === 'doctrine' ? 'doctrine/' :
-                               ext.id === 'symfony' ? 'symfony/' :
-                               ext.id === 'larastan' ? 'laravel/' :
-                               ext.id === 'deprecation-rules' ? 'phpstan/phpstan-deprecation-rules' : '';
+      const dependencyNames = Object.keys(req);
+      const composerSignals: Record<string, string[]> = {
+        'sidz-rules': ['sidz/phpstan-rules'],
+        'voku-rules': ['voku/phpstan-rules'],
+        'strict-rules': ['phpstan/phpstan-strict-rules'],
+        'deprecation-rules': ['phpstan/phpstan-deprecation-rules'],
+        doctrine: ['phpstan/phpstan-doctrine', 'doctrine/'],
+        symfony: ['phpstan/phpstan-symfony', 'symfony/'],
+        larastan: ['larastan/larastan', 'nunomaduro/larastan', 'laravel/'],
+        phpunit: ['phpstan/phpstan-phpunit', 'phpunit/phpunit'],
+        'beberlei-assert': ['phpstan/phpstan-beberlei-assert', 'beberlei/assert'],
+        'webmozart-assert': ['phpstan/phpstan-webmozart-assert', 'webmozart/assert'],
+        mockery: ['phpstan/phpstan-mockery', 'mockery/mockery'],
+        psl: ['php-standard-library/phpstan-extension', 'azjezz/psl'],
+        nette: ['phpstan/phpstan-nette', 'nette/'],
+        dibi: ['phpstan/phpstan-dibi', 'dibi/dibi']
+      };
 
-        if (mappedComposer && Object.keys(req).some(k => k.includes(mappedComposer))) {
-          enabled = true;
+      const baseSelectedExtensions = config.extensions.selectedExtensions || [
+        { id: 'sidz-rules', enabled: false, selectedIncludes: ['rules.neon'] },
+        { id: 'voku-rules', enabled: false, selectedIncludes: ['rules.neon'] },
+        { id: 'strict-rules', enabled: false, selectedIncludes: ['rules.neon'] },
+        { id: 'deprecation-rules', enabled: false, selectedIncludes: ['rules.neon'] },
+        { id: 'doctrine', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
+        { id: 'symfony', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
+        { id: 'larastan', enabled: false, selectedIncludes: ['extension.neon'] },
+        { id: 'phpunit', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
+        { id: 'beberlei-assert', enabled: false, selectedIncludes: ['extension.neon'] },
+        { id: 'webmozart-assert', enabled: false, selectedIncludes: ['extension.neon'] },
+        { id: 'mockery', enabled: false, selectedIncludes: ['extension.neon'] },
+        { id: 'psl', enabled: false, selectedIncludes: ['extension.neon'] },
+        { id: 'nette', enabled: false, selectedIncludes: ['extension.neon'] },
+        { id: 'dibi', enabled: false, selectedIncludes: ['extension.neon'] }
+      ];
+
+      const detectedList: string[] = [];
+      const updatedExtensions = baseSelectedExtensions.map(ext => {
+        const signals = composerSignals[ext.id] || [];
+        const enabled = ext.enabled || signals.some(signal => dependencyNames.some(name => name.includes(signal)));
+        if (enabled && !ext.enabled && signals.length > 0) {
           detectedList.push(ext.id);
         }
         return { ...ext, enabled };
       });
 
       setConfig(prev => {
-        const hasSymfony = Object.keys(req).some(k => k.includes('symfony/'));
-        const hasDoctrine = Object.keys(req).some(k => k.includes('doctrine/'));
-        const hasLarastan = Object.keys(req).some(k => k.includes('laravel/') || k.includes('nunomaduro/larastan'));
+        const hasSymfony = dependencyNames.some(k => k.includes('symfony/'));
+        const hasDoctrine = dependencyNames.some(k => k.includes('doctrine/'));
+        const hasLarastan = dependencyNames.some(k => k.includes('laravel/') || k.includes('larastan/larastan') || k.includes('nunomaduro/larastan'));
         
         return {
           ...prev,
@@ -175,7 +202,7 @@ export default function App() {
             doctrine: prev.extensions.doctrine || hasDoctrine,
             symfony: prev.extensions.symfony || hasSymfony,
             larastan: prev.extensions.larastan || hasLarastan,
-            selectedExtensions: updatedExtensions.length > 0 ? updatedExtensions : prev.extensions.selectedExtensions
+            selectedExtensions: updatedExtensions
           }
         };
       });
