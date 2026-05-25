@@ -124,14 +124,15 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
   }
 
   // Strict Toggles
-  lines.push(`    checkMissingIterableValueType: ${config.strictRules.checkMissingIterableValueType ? 'true' : 'false'}`);
-  lines.push(`    checkGenericClassInNonGenericObjectType: ${config.strictRules.checkGenericClassInNonGenericObjectType ? 'true' : 'false'}`);
   lines.push(`    treatPhpDocTypesAsCertain: ${config.strictRules.treatPhpDocTypesAsCertain ? 'true' : 'false'}`);
   
   if (config.strictRules.reportUnmatchedIgnoredErrors !== undefined) {
     lines.push(`    reportUnmatchedIgnoredErrors: ${config.strictRules.reportUnmatchedIgnoredErrors ? 'true' : 'false'}`);
   }
-  if (config.strictRules.checkImplicitMixed !== undefined) {
+  if (
+    config.strictRules.checkImplicitMixed !== undefined
+    && (config.strictRules.checkImplicitMixed || (config.level !== '10' && config.level !== 'max'))
+  ) {
     lines.push(`    checkImplicitMixed: ${config.strictRules.checkImplicitMixed ? 'true' : 'false'}`);
   }
   if (config.strictRules.checkBenevolentUnionTypes !== undefined) {
@@ -252,10 +253,6 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
           result.phpVersion = val;
         } else if (key === 'targetVersion') {
           result.targetVersion = val === '1.x' ? '1.x' : '2.x';
-        } else if (key === 'checkMissingIterableValueType') {
-          strictRules.checkMissingIterableValueType = val === 'true';
-        } else if (key === 'checkGenericClassInNonGenericObjectType') {
-          strictRules.checkGenericClassInNonGenericObjectType = val === 'true';
         } else if (key === 'treatPhpDocTypesAsCertain') {
           strictRules.treatPhpDocTypesAsCertain = val === 'true';
         } else if (key === 'reportUnmatchedIgnoredErrors') {
@@ -397,8 +394,6 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
 
   // Build the strict rules
   result.strictRules = {
-    checkMissingIterableValueType: strictRules.checkMissingIterableValueType ?? true,
-    checkGenericClassInNonGenericObjectType: strictRules.checkGenericClassInNonGenericObjectType ?? true,
     treatPhpDocTypesAsCertain: strictRules.treatPhpDocTypesAsCertain ?? true,
     bleedingEdge,
     reportUnmatchedIgnoredErrors: strictRules.reportUnmatchedIgnoredErrors ?? true,

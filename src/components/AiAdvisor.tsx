@@ -168,12 +168,12 @@ if ($x === true && $x === false) {
 \`\`\``;
       } else if (query.includes('bleed') || query.includes('edge') || query.includes('bleedingedge')) {
         response = `### PHPStan Diagnostic: Bleeding Edge Ruleset
-\`bleedingEdge\` is a specialized configuration parameter in PHPStan that enables upcoming strict rules and bugfixes earlier, before they are tagged in the next major/minor releases.
+\`Bleeding Edge\` in PHPStan 2.x is enabled by including the dedicated \`bleedingEdge.neon\` config file, which turns on next-major rules, behaviour changes, and bug fixes early.
 
 #### 🛠️ Trade-Off and Recommendation:
 * **Benefit**: Pre-emptively catches standard type issues that will become standard in the next releases. Excellent for proactive library maintainers.
 * **Cost**: Your build pipelines can fail unexpectedly when minor package increments of PHPStan introduce stricter rules.
-* **Config**: Included via \`bleedingEdge\` config settings inside PHPStan 2.x files.`;
+* **Config**: Add it through the \`includes\` section, for example \`vendor/phpstan/phpstan/conf/bleedingEdge.neon\`.`;
       } else if (query.includes('baseline')) {
         response = `### PHPStan Diagnostic: Technical Debt Baselines
 A baseline file lists all existing static analysis errors with their specific files and occurrence counts, so that code audits can ignore legacy errors on current files while checking any new changes strictly.

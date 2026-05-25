@@ -4,8 +4,6 @@
  */
 
 export interface StrictRules {
-  checkMissingIterableValueType: boolean;
-  checkGenericClassInNonGenericObjectType: boolean;
   treatPhpDocTypesAsCertain: boolean;
   bleedingEdge: boolean;
   reportUnmatchedIgnoredErrors?: boolean;
