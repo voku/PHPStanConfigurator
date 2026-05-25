@@ -403,25 +403,17 @@ export default function App() {
                 <h1 className="text-lg font-bold font-mono tracking-tight text-white flex items-center gap-1.5">
                   PHPStan Configurator <span className="text-xs bg-indigo-650 text-indigo-50 px-1.5 py-0.5 rounded uppercase font-mono tracking-wider font-extrabold scale-90">v2.0</span>
                 </h1>
-                <span className="text-[10px] font-mono font-medium px-2 py-0.5 bg-slate-800 text-slate-300 border border-slate-700 rounded-full">
-                  voku-spec
-                </span>
               </div>
               <p className="text-xs text-slate-400">
-                Created by <a href="https://github.com/voku" target="_blank" rel="noreferrer" className="text-indigo-455 hover:underline font-semibold hover:text-indigo-305">Lars Moelleken (voku)</a>. Pure, deterministic, interactive config engineering.
+                Created by <a href="https://github.com/voku" target="_blank" rel="noreferrer" className="text-indigo-455 hover:underline font-semibold hover:text-indigo-305">Lars Moelleken (voku)</a>.
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400 hidden sm:inline">Theme:</span>
-            <span className="text-xs font-mono font-medium px-2.5 py-1 bg-slate-800 text-indigo-300 border border-slate-700 rounded-lg shadow-inner flex items-center gap-1">
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-pulse" />
-              Pristine Slate Light
-            </span>
-            <button
-              onClick={() => setIsExportModalOpen(true)}
-              className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-650 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg shadow-lg shadow-indigo-950/20 hover:shadow-indigo-700/35 transition-all cursor-pointer animate-fadeIn"
+          <button
+            onClick={() => setIsExportModalOpen(true)}
+            className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-650 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg shadow-lg shadow-indigo-950/20 hover:shadow-indigo-700/35 transition-all cursor-pointer animate-fadeIn"
               id="header-export-btn"
               title="Export Config (Cmd+E / Ctrl+E)"
             >
