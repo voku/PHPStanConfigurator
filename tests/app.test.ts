@@ -9,6 +9,7 @@ test('App shows preset blueprints first without opening helper panels by default
   const html = renderToStaticMarkup(React.createElement(App));
 
   assert.match(html, /Choose Preset Blueprint/);
+  assert.match(html, />8\.5</);
   assert.match(html, /Fine-tune from existing project files/);
   assert.match(html, /Single selection source/);
   assert.doesNotMatch(html, /Activated from composer\.json/);

@@ -22,7 +22,7 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
   const includes: string[] = [];
   
   if (config.strictRules.bleedingEdge) {
-    includes.push('vendor/phpstan/phpstan/conf/bleedingEdge.neon');
+    includes.push('phar://phpstan.phar/conf/bleedingEdge.neon');
   }
 
 // Extensions

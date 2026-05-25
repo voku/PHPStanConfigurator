@@ -7,6 +7,7 @@ import { PhpStanConfig, Preset } from '../types';
 import { PHPSTAN_CONFIG_REFERENCE_BY_KEY } from './phpstanReference.generated';
 
 export const PHP_VERSIONS = [
+  { value: '80500', label: 'PHP 8.5 (80500)' },
   { value: '80400', label: 'PHP 8.4 (80400)' },
   { value: '80300', label: 'PHP 8.3 (80300)' },
   { value: '80200', label: 'PHP 8.2 (80200)' },
@@ -316,7 +317,7 @@ const LOCAL_RULE_EXPLANATIONS: Record<string, RuleExplanation> = {
   },
   bleedingEdge: {
     summary: 'Includes PHPStan’s Bleeding Edge ruleset.',
-    rationale: 'In PHPStan 2.x, Bleeding Edge is enabled by including the dedicated bleedingEdge.neon file. It previews rules, behaviour changes, bug fixes, and performance improvements that are planned for the next major release.',
+    rationale: 'In PHPStan 2.x, Bleeding Edge is enabled by including the dedicated phar://phpstan.phar/conf/bleedingEdge.neon file. It previews rules, behaviour changes, bug fixes, and performance improvements that are planned for the next major release.',
     trades: 'You get new analysis improvements sooner, but upgrades can surface fresh findings earlier than on the stable defaults.',
   },
   bootstrapFiles: {
