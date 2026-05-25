@@ -102,43 +102,43 @@ export function NeonEditor({
     <div id="neon-editor-container" className="flex flex-col h-full bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden min-h-[500px]">
       
       {/* Container Header */}
-      <div className="flex items-center justify-between px-5 py-4 bg-slate-50 border-b border-slate-200">
-        <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-indigo-600" />
-          <span className="font-semibold text-sm text-slate-800 font-mono">phpstan.neon.dist</span>
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-3 bg-slate-50 border-b border-slate-200">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-2.5 h-2.5 rounded-full bg-indigo-600 shrink-0" />
+          <span className="font-semibold text-sm text-slate-800 font-mono whitespace-nowrap">phpstan.neon.dist</span>
           {activePreset && (
-            <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-semibold">
+            <span className="text-[10px] bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded font-semibold truncate max-w-[140px]" title={`Preset: ${activePreset.name}`}>
               Preset: {activePreset.name}
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => setImportOpen(!importOpen)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm"
             id="import-neon-btn"
           >
-            <Upload className="w-3.5 h-3.5 text-slate-500" />
-            Import Existing
+            <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="whitespace-nowrap">Import</span>
           </button>
           
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm"
             id="copy-neon-btn"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5 text-slate-500" />}
-            {copied ? 'Copied' : 'Copy'}
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <Copy className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+            <span className="whitespace-nowrap">{copied ? 'Copied' : 'Copy'}</span>
           </button>
 
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white shadow-sm shadow-indigo-200 rounded-lg transition-colors cursor-pointer"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white shadow-sm shadow-indigo-200 rounded-lg transition-colors cursor-pointer"
             id="download-neon-btn"
           >
-            <Download className="w-3.5 h-3.5" />
-            Download
+            <Download className="w-3.5 h-3.5 shrink-0" />
+            <span className="whitespace-nowrap">Download</span>
           </button>
         </div>
       </div>
