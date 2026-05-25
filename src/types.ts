@@ -7,6 +7,7 @@ export interface StrictRules {
   treatPhpDocTypesAsCertain: boolean;
   bleedingEdge: boolean;
   reportUnmatchedIgnoredErrors?: boolean;
+  reportIgnoresWithoutComments?: boolean;
   checkImplicitMixed?: boolean;
   checkBenevolentUnionTypes?: boolean;
 }

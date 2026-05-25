@@ -252,6 +252,7 @@ export default function App() {
         treatPhpDocTypesAsCertain: parsed.strictRules?.treatPhpDocTypesAsCertain ?? config.strictRules.treatPhpDocTypesAsCertain,
         bleedingEdge: parsed.strictRules?.bleedingEdge ?? config.strictRules.bleedingEdge,
         reportUnmatchedIgnoredErrors: parsed.strictRules?.reportUnmatchedIgnoredErrors ?? config.strictRules.reportUnmatchedIgnoredErrors,
+        reportIgnoresWithoutComments: parsed.strictRules?.reportIgnoresWithoutComments ?? config.strictRules.reportIgnoresWithoutComments,
         checkImplicitMixed: parsed.strictRules?.checkImplicitMixed ?? config.strictRules.checkImplicitMixed,
         checkBenevolentUnionTypes: parsed.strictRules?.checkBenevolentUnionTypes ?? config.strictRules.checkBenevolentUnionTypes,
       },
@@ -1060,6 +1061,30 @@ export default function App() {
                     <label className="block text-xs font-semibold text-slate-800 select-none">Report Unmatched Ignores</label>
                     <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
                       Alerts if ignore-rules registered under your settings never match any thrown errors. Keeps config files clean.
+                    </p>
+                  </div>
+                </div>
+
+                {/* checkImplicitMixed */}
+                <div 
+                  className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
+                  onMouseEnter={() => setHoveredRule('reportIgnoresWithoutComments')}
+                  onMouseLeave={() => setHoveredRule(null)}
+                  onClick={() => setConfig(prev => ({
+                    ...prev,
+                    strictRules: { ...prev.strictRules, reportIgnoresWithoutComments: !(prev.strictRules.reportIgnoresWithoutComments ?? false) }
+                  }))}
+                >
+                  <input
+                    type="checkbox"
+                    readOnly
+                    checked={config.strictRules.reportIgnoresWithoutComments ?? false}
+                    className="mt-1 accent-indigo-600 rounded focus:ring-0"
+                  />
+                  <div>
+                    <label className="block text-xs font-semibold text-slate-800 select-none">Require Ignore Comments</label>
+                    <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                      Enforces reasoned `@phpstan-ignore` comments and rejects broad ignore-line shortcuts.
                     </p>
                   </div>
                 </div>

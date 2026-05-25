@@ -129,6 +129,9 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
   if (config.strictRules.reportUnmatchedIgnoredErrors !== undefined) {
     lines.push(`    reportUnmatchedIgnoredErrors: ${config.strictRules.reportUnmatchedIgnoredErrors ? 'true' : 'false'}`);
   }
+  if (config.strictRules.reportIgnoresWithoutComments !== undefined) {
+    lines.push(`    reportIgnoresWithoutComments: ${config.strictRules.reportIgnoresWithoutComments ? 'true' : 'false'}`);
+  }
   if (
     config.strictRules.checkImplicitMixed !== undefined
     && (config.strictRules.checkImplicitMixed || (config.level !== '10' && config.level !== 'max'))
@@ -257,6 +260,8 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
           strictRules.treatPhpDocTypesAsCertain = val === 'true';
         } else if (key === 'reportUnmatchedIgnoredErrors') {
           strictRules.reportUnmatchedIgnoredErrors = val === 'true';
+        } else if (key === 'reportIgnoresWithoutComments') {
+          strictRules.reportIgnoresWithoutComments = val === 'true';
         } else if (key === 'checkImplicitMixed') {
           strictRules.checkImplicitMixed = val === 'true';
         } else if (key === 'checkBenevolentUnionTypes') {
@@ -397,6 +402,7 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
     treatPhpDocTypesAsCertain: strictRules.treatPhpDocTypesAsCertain ?? true,
     bleedingEdge,
     reportUnmatchedIgnoredErrors: strictRules.reportUnmatchedIgnoredErrors ?? true,
+    reportIgnoresWithoutComments: strictRules.reportIgnoresWithoutComments ?? false,
     checkImplicitMixed: strictRules.checkImplicitMixed ?? false,
     checkBenevolentUnionTypes: strictRules.checkBenevolentUnionTypes ?? false,
   };

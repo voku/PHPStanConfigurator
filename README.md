@@ -40,15 +40,19 @@ No environment variables are required for the static GitHub Pages build.
 
 ```bash
 npm run dev
+npm test
 npm run lint
 npm run build
 npm run build:pages
+npm run sync:phpstan-config-reference
 npm run start
 ```
 
+- `npm test` runs the Node.js unit tests for the NEON and synced PHPStan reference logic
 - `npm run lint` runs the TypeScript type check
 - `npm run build` creates the production client bundle and the Express server bundle in `dist/`
 - `npm run build:pages` creates the static Vite build used for GitHub Pages deployment
+- `npm run sync:phpstan-config-reference` refreshes the tracked PHPStan config reference snapshot from `phpstan/phpstan`
 - `npm run start` serves the production bundle from `dist/`
 
 ## GitHub Pages deployment
@@ -62,6 +66,12 @@ Required repository settings:
 3. Push to `main` to trigger a deployment
 
 The workflow uses `npm ci`, runs `npm run build:pages`, uploads `dist/`, and publishes the site automatically.
+
+## PHPStan reference sync workflow
+
+This repository also includes a manually triggered workflow at `.github/workflows/sync-phpstan-config-reference.yml`.
+
+It fetches the current `website/src/config-reference.md` file from the selected PHPStan ref, regenerates `src/data/phpstanReference.generated.ts`, runs `npm run lint` and `npm run build`, and opens a PR when the synced data changes.
 
 ## Key files
 
