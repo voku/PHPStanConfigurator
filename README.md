@@ -40,6 +40,7 @@ No environment variables are required for the static GitHub Pages build.
 
 ```bash
 npm run dev
+npm test
 npm run lint
 npm run build
 npm run build:pages
@@ -47,6 +48,7 @@ npm run sync:phpstan-config-reference
 npm run start
 ```
 
+- `npm test` runs the Node.js unit tests for the NEON and synced PHPStan reference logic
 - `npm run lint` runs the TypeScript type check
 - `npm run build` creates the production client bundle and the Express server bundle in `dist/`
 - `npm run build:pages` creates the static Vite build used for GitHub Pages deployment
