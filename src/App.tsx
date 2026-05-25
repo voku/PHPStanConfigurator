@@ -738,19 +738,18 @@ export default function App() {
                   <label className="block text-[11px] font-bold text-slate-600 font-mono uppercase tracking-wider">
                     PHP version runtime target:
                   </label>
-                  <div className="grid grid-cols-6 gap-1 px-1 py-1 bg-slate-100/60 rounded-xl border">
-                    {['80400', '80300', '80200', '80100', '80000', '70400'].map((ver) => {
-                      const label = ver === '80400' ? '8.4' :
-                                    ver === '80300' ? '8.3' :
-                                    ver === '80200' ? '8.2' :
-                                    ver === '80100' ? '8.1' :
-                                    ver === '80000' ? '8.0' : '7.4';
-                      const isSelected = config.phpVersion === ver;
+                  <div
+                    className="grid gap-1 px-1 py-1 bg-slate-100/60 rounded-xl border"
+                    style={{ gridTemplateColumns: `repeat(${PHP_VERSIONS.length}, minmax(0, 1fr))` }}
+                  >
+                    {PHP_VERSIONS.map(({ value }) => {
+                      const label = formatPhpVersion(value);
+                      const isSelected = config.phpVersion === value;
                       return (
                         <button
-                          key={ver}
+                          key={value}
                           type="button"
-                          onClick={() => setConfig(prev => ({ ...prev, phpVersion: ver }))}
+                          onClick={() => setConfig(prev => ({ ...prev, phpVersion: value }))}
                           className={`py-1 text-center font-bold text-[10.5px] rounded-lg border transition-all cursor-pointer ${
                             isSelected
                               ? 'bg-indigo-600 text-white border-indigo-600 shadow-md font-extrabold font-mono'

@@ -84,3 +84,14 @@ test('renderNeon uses current include paths for mapped extensions', () => {
   assert.match(neon, /vendor\/larastan\/larastan\/extension\.neon/);
   assert.match(neon, /vendor\/php-standard-library\/phpstan-extension\/extension\.neon/);
 });
+
+test('renderNeon uses official bleeding edge include path and formats PHP 8.5', () => {
+  const config = createConfig();
+  config.phpVersion = '80500';
+  config.strictRules.bleedingEdge = true;
+
+  const neon = renderNeon(config, 'Test Preset');
+
+  assert.match(neon, /phar:\/\/phpstan\.phar\/conf\/bleedingEdge\.neon/);
+  assert.match(neon, /phpVersion: 80500 # 8\.5/);
+});
