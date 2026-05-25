@@ -24,8 +24,7 @@ import {
   RefreshCw,
   Github,
   Download,
-  FileCode,
-  Compass
+  FileCode
 } from 'lucide-react';
 
 import { PhpStanConfig, Preset, Extensions, BaselineConfig } from './types';
@@ -35,14 +34,13 @@ import { renderNeon, parseNeon, formatPhpVersion } from './lib/neon';
 import { NeonEditor } from './components/NeonEditor';
 import { PhpStanExtensionLibrary } from './components/PhpStanExtensionLibrary';
 import { CiPipelines } from './components/CiPipelines';
-import { AiAdvisor } from './components/AiAdvisor';
 import { ExportModal } from './components/ExportModal';
 
 export default function App() {
   // General Configuration State
   const [config, setConfig] = useState<PhpStanConfig>({ ...DEFAULT_CONFIG });
   const [activePresetId, setActivePresetId] = useState<string>('modern'); // default modern
-  const [startMode, setStartMode] = useState<string>('composer');
+  const [startMode, setStartMode] = useState<'composer' | 'import' | null>(null);
   const [importText, setImportText] = useState('');
   const [composerText, setComposerText] = useState('');
   const [localComposerStatus, setLocalComposerStatus] = useState<{ message: string; type: 'success' | 'error' | null; detected: string[] }>({
@@ -451,42 +449,185 @@ export default function App() {
         
         {/* Left Interactive Parameters Form Sheet */}
         <div className="lg:col-span-7 space-y-6 order-2 lg:order-1 min-w-0">
-                   {/* Step 1: Configuration Source & Blueprint Hub */}
+          {/* Step 1: Configuration Source & Blueprint Hub */}
           <section id="project-start-profile-section" className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
             <div>
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 text-[10px] bg-slate-105 text-slate-600 border rounded-md font-mono font-bold">STEP 1</span>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight font-sans">
-                  Choose Configuration Blueprint
+                  Choose Preset Blueprint
                 </h2>
               </div>
               <p className="text-xs text-slate-505 leading-normal mt-1">
-                Autofill all static testing controls, inclusions, and paths by picking a dedicated framework blueprint, importing an existing neon codebase file, or running a dependency scan.
+                Start with a preset blueprint first, then optionally refine it by importing an existing neon codebase file or scanning composer dependencies.
               </p>
             </div>
 
-            {/* Start Source Tabs Selection with rich icons */}
             <div className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-1 px-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
-                {[
-                  { id: 'composer', label: 'Scan composer.json', icon: <Terminal className="w-3.5 h-3.5" /> },
-                  { id: 'preset', label: 'Preset Blueprints', icon: <Compass className="w-3.5 h-3.5" /> },
-                  { id: 'import', label: 'Import .neon.dist', icon: <FileCode className="w-3.5 h-3.5" /> }
-                ].map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setStartMode(t.id)}
-                    className={`min-w-0 py-2 px-2 rounded-lg text-center font-bold text-[10px] sm:text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 ${
-                      startMode === t.id
-                        ? 'bg-indigo-600 text-white shadow-md font-semibold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
-                    }`}
-                  >
-                    {t.icon}
-                    <span>{t.label}</span>
-                  </button>
-                ))}
+              <div className="space-y-4 animate-fadeIn">
+                <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/50">
+                  {[
+                    { id: 'All', label: '📦 All Blueprints' },
+                    { id: 'General', label: '✨ Generic MVC' },
+                    { id: 'Performance Focused', label: '⚡ Frameworks' },
+                    { id: 'Security Focused', label: '🛡️ Packages' },
+                    { id: 'Legacy Compatibility', label: '🦖 Legacy' }
+                  ].map((tab) => (
+                    <button
+                      key={tab.id}
+                      type="button"
+                      onClick={() => setSelectedFilterCategory(tab.id)}
+                      className={`py-1.5 px-1 text-center font-bold text-[9px] md:text-[10px] rounded-lg transition-all cursor-pointer flex-1 ${
+                        selectedFilterCategory === tab.id
+                          ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                          : 'text-slate-650 hover:bg-slate-200 hover:text-slate-900'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
+                  {PRESETS
+                    .filter(p => selectedFilterCategory === 'All' || p.category === selectedFilterCategory)
+                    .map((preset) => {
+                      const isSelected = activePresetId === preset.id;
+                      return (
+                        <div
+                          key={preset.id}
+                          onClick={() => handlePresetSelect(preset)}
+                          className={`group text-left p-4 rounded-xl border transition-all text-xs flex flex-col justify-between cursor-pointer relative overflow-hidden select-none ${
+                            isSelected
+                              ? 'bg-indigo-50/50 border-indigo-500 ring-2 ring-indigo-500/15 text-slate-900 font-normal shadow-sm'
+                              : 'bg-white border-slate-200 hover:border-indigo-400 hover:bg-slate-50/60 shadow-sm'
+                          }`}
+                        >
+                          <div className="space-y-2">
+                            <div className="flex items-start justify-between gap-1.5">
+                              <div className="space-y-0.5">
+                                <span className="font-extrabold text-[12px] text-slate-800 block leading-tight">{preset.name}</span>
+                                <span className="text-[8px] font-mono text-indigo-650 font-bold uppercase tracking-wider">{preset.target}</span>
+                              </div>
+                              <div className="flex flex-col items-end gap-1">
+                                <span className={`text-[8px] border px-1.5 py-0.5 rounded uppercase font-mono tracking-wider font-extrabold ${
+                                  preset.strictness === 'High' 
+                                    ? 'bg-rose-50 text-rose-700 border-rose-200' 
+                                    : preset.strictness === 'Medium' 
+                                      ? 'bg-indigo-50 text-indigo-705 border-indigo-200'
+                                      : 'bg-amber-50 text-amber-700 border-amber-200'
+                                }`}>
+                                  {preset.strictness} Code
+                                </span>
+                                {isSelected && (
+                                  <span className="text-[7.5px] bg-indigo-600 text-white font-mono rounded px-1.5 py-0.2 uppercase font-extrabold tracking-widest scale-95 flex items-center gap-1 h-[14px]">
+                                    <span className="w-1 h-1 bg-white rounded-full shrink-0 animate-pulse" />
+                                    Active
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            <p className="text-[9.5px] leading-relaxed text-slate-500 group-hover:text-slate-600 line-clamp-3">
+                              {preset.description}
+                            </p>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[8.5px] font-mono text-slate-400">
+                            <div className="flex items-center gap-2">
+                              <span>Lvl: <strong className="text-slate-705">{preset.config.level}</strong></span>
+                              <span className="text-slate-300">|</span>
+                              <span>PHP: <strong className="text-slate-705">{(parseFloat(preset.config.phpVersion) / 10000).toFixed(1)}</strong></span>
+                              <span className="text-slate-300">|</span>
+                              <span>Paths: <strong className="text-slate-705">{preset.config.paths.join(', ')}</strong></span>
+                            </div>
+
+                            <div className="flex gap-1">
+                              <span
+                                title="Symfony Extension"
+                                className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
+                                  preset.config.extensions.symfony
+                                    ? 'bg-indigo-105 text-indigo-700 border-indigo-300'
+                                    : 'bg-slate-50 text-slate-300 border-slate-200'
+                                }`}
+                              >
+                                S
+                              </span>
+                              <span
+                                title="Doctrine Database Integration"
+                                className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
+                                  preset.config.extensions.doctrine
+                                    ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                                    : 'bg-slate-50 text-slate-300 border-slate-200'
+                                }`}
+                              >
+                                D
+                              </span>
+                              <span
+                                title="Larastan Laravel Integration"
+                                className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
+                                  preset.config.extensions.larastan
+                                    ? 'bg-rose-100 text-rose-700 border-rose-300'
+                                    : 'bg-slate-50 text-slate-300 border-slate-200'
+                                }`}
+                              >
+                                L
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                </div>
+
+                {activePresetId && (
+                  <div className="p-3 bg-indigo-50 border border-indigo-100/50 rounded-xl text-[10px] text-indigo-950 flex items-center justify-between animate-fadeIn">
+                    <div className="flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-600 scale-95 shrink-0 animate-pulse" />
+                      <p>
+                        Active Project Preset: <strong className="text-indigo-900">"{PRESETS.find(p => p.id === activePresetId)?.name}"</strong> controls applied!
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleResetToPresetPreset}
+                      className="text-[9px] font-bold text-indigo-600 hover:text-indigo-850 bg-white border border-indigo-200/50 rounded px-2 py-0.5 shadow-sm transition-colors cursor-pointer"
+                    >
+                      Reset Applied Options
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="text-[11px] font-semibold text-slate-600 uppercase tracking-wider font-mono">
+                    Fine-tune from existing project files
+                  </p>
+                  <p className="text-[10px] text-slate-400">
+                    Optional helper tools
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                  {[
+                    { id: 'composer', label: 'Scan composer.json', icon: <Terminal className="w-3.5 h-3.5" /> },
+                    { id: 'import', label: 'Import .neon.dist', icon: <FileCode className="w-3.5 h-3.5" /> }
+                  ].map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      onClick={() => setStartMode(t.id)}
+                      className={`min-w-0 py-2 px-2 rounded-lg text-center font-bold text-[10px] sm:text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 ${
+                        startMode === t.id
+                          ? 'bg-indigo-600 text-white shadow-md font-semibold'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                      }`}
+                    >
+                      {t.icon}
+                      <span>{t.label}</span>
+                    </button>
+                  ))}
+                </div>
               </div>
 
               {/* Start Mode Content */}
@@ -588,145 +729,6 @@ export default function App() {
                 </div>
               )}
 
-              {startMode === 'preset' && (
-                <div className="space-y-4 animate-fadeIn">
-                  {/* Category Filtration Tabs */}
-                  <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/50">
-                    {[
-                      { id: 'All', label: '📦 All Blueprints' },
-                      { id: 'General', label: '✨ Generic MVC' },
-                      { id: 'Performance Focused', label: '⚡ Frameworks' },
-                      { id: 'Security Focused', label: '🛡️ Packages' },
-                      { id: 'Legacy Compatibility', label: '🦖 Legacy' }
-                    ].map((tab) => (
-                      <button
-                        key={tab.id}
-                        type="button"
-                        onClick={() => setSelectedFilterCategory(tab.id)}
-                        className={`py-1.5 px-1 text-center font-bold text-[9px] md:text-[10px] rounded-lg transition-all cursor-pointer flex-1 ${
-                          selectedFilterCategory === tab.id
-                            ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                            : 'text-slate-650 hover:bg-slate-200 hover:text-slate-900'
-                        }`}
-                      >
-                        {tab.label}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Redesigned interactive Preset Card Grid */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
-                    {PRESETS
-                      .filter(p => selectedFilterCategory === 'All' || p.category === selectedFilterCategory)
-                      .map((preset) => {
-                        const isSelected = activePresetId === preset.id;
-                        return (
-                          <div
-                            key={preset.id}
-                            onClick={() => handlePresetSelect(preset)}
-                            className={`group text-left p-4 rounded-xl border transition-all text-xs flex flex-col justify-between cursor-pointer relative overflow-hidden select-none ${
-                              isSelected
-                                ? 'bg-indigo-50/50 border-indigo-500 ring-2 ring-indigo-500/15 text-slate-900 font-normal shadow-sm'
-                                : 'bg-white border-slate-200 hover:border-indigo-400 hover:bg-slate-50/60 shadow-sm'
-                            }`}
-                          >
-                            <div className="space-y-2">
-                              <div className="flex items-start justify-between gap-1.5">
-                                <div className="space-y-0.5">
-                                  <span className="font-extrabold text-[12px] text-slate-800 block leading-tight">{preset.name}</span>
-                                  <span className="text-[8px] font-mono text-indigo-650 font-bold uppercase tracking-wider">{preset.target}</span>
-                                </div>
-                                <div className="flex flex-col items-end gap-1">
-                                  <span className={`text-[8px] border px-1.5 py-0.5 rounded uppercase font-mono tracking-wider font-extrabold ${
-                                    preset.strictness === 'High' 
-                                      ? 'bg-rose-50 text-rose-700 border-rose-200' 
-                                      : preset.strictness === 'Medium' 
-                                        ? 'bg-indigo-50 text-indigo-705 border-indigo-200'
-                                        : 'bg-amber-50 text-amber-700 border-amber-200'
-                                  }`}>
-                                    {preset.strictness} Code
-                                  </span>
-                                  {isSelected && (
-                                    <span className="text-[7.5px] bg-indigo-600 text-white font-mono rounded px-1.5 py-0.2 uppercase font-extrabold tracking-widest scale-95 flex items-center gap-1 h-[14px]">
-                                      <span className="w-1 h-1 bg-white rounded-full shrink-0 animate-pulse" />
-                                      Active
-                                    </span>
-                                  )}
-                                </div>
-                              </div>
-                              <p className="text-[9.5px] leading-relaxed text-slate-500 group-hover:text-slate-600 line-clamp-3">
-                                {preset.description}
-                              </p>
-                            </div>
-
-                            {/* Preset High-density parameter summary preview */}
-                            <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[8.5px] font-mono text-slate-400">
-                              <div className="flex items-center gap-2">
-                                <span>Lvl: <strong className="text-slate-705">{preset.config.level}</strong></span>
-                                <span className="text-slate-300">|</span>
-                                <span>PHP: <strong className="text-slate-705">{(parseFloat(preset.config.phpVersion) / 10000).toFixed(1)}</strong></span>
-                                <span className="text-slate-300">|</span>
-                                <span>Paths: <strong className="text-slate-705">{preset.config.paths.join(', ')}</strong></span>
-                              </div>
-                              
-                              {/* Integrated Framework Extension lights indicator */}
-                              <div className="flex gap-1">
-                                <span 
-                                  title="Symfony Extension"
-                                  className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
-                                    preset.config.extensions.symfony 
-                                      ? 'bg-indigo-105 text-indigo-700 border-indigo-300' 
-                                      : 'bg-slate-50 text-slate-300 border-slate-200'
-                                  }`}
-                                >
-                                  S
-                                </span>
-                                <span 
-                                  title="Doctrine Database Integration"
-                                  className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
-                                    preset.config.extensions.doctrine 
-                                      ? 'bg-emerald-100 text-emerald-700 border-emerald-300' 
-                                      : 'bg-slate-50 text-slate-300 border-slate-200'
-                                  }`}
-                                >
-                                  D
-                                </span>
-                                <span 
-                                  title="Larastan Laravel Integration"
-                                  className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
-                                    preset.config.extensions.larastan 
-                                      ? 'bg-rose-100 text-rose-700 border-rose-300' 
-                                      : 'bg-slate-50 text-slate-300 border-slate-200'
-                                  }`}
-                                >
-                                  L
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-
-                  {activePresetId && (
-                    <div className="p-3 bg-indigo-50 border border-indigo-100/50 rounded-xl text-[10px] text-indigo-950 flex items-center justify-between animate-fadeIn">
-                      <div className="flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-indigo-600 scale-95 shrink-0 animate-pulse" />
-                        <p>
-                          Active Project Preset: <strong className="text-indigo-900">"{PRESETS.find(p => p.id === activePresetId)?.name}"</strong> controls applied!
-                        </p>
-                      </div>
-                      <button
-                        type="button"
-                        onClick={handleResetToPresetPreset}
-                        className="text-[9px] font-bold text-indigo-600 hover:text-indigo-850 bg-white border border-indigo-200/50 rounded px-2 py-0.5 shadow-sm transition-colors cursor-pointer"
-                      >
-                        Reset Applied Options
-                      </button>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Step 2: Project Profile Setup Options */}
@@ -1332,9 +1334,6 @@ export default function App() {
               </p>
             )}
           </div>
-
-          {/* Interactive AI Advisor Helper */}
-          <AiAdvisor currentLevel={config.level} />
 
         </div>
 
