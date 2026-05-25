@@ -17,4 +17,7 @@ test('App shows preset blueprints first without opening helper panels by default
   assert.doesNotMatch(html, /Framework Alternative/);
   assert.doesNotMatch(html, /composer-json-textarea-s1/);
   assert.doesNotMatch(html, /import-neon-textarea-s1/);
+  assert.doesNotMatch(html, /voku-spec/);
+  assert.doesNotMatch(html, /Pristine Slate Light/);
+  assert.doesNotMatch(html, /Pure, deterministic, interactive config engineering/);
 });
