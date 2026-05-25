@@ -4,6 +4,7 @@
  */
 
 import { PhpStanConfig, Preset } from '../types';
+import { PHPSTAN_CONFIG_REFERENCE_BY_KEY } from './phpstanReference.generated';
 
 export const PHP_VERSIONS = [
   { value: '80400', label: 'PHP 8.4 (80400)' },
@@ -41,6 +42,7 @@ export const DEFAULT_CONFIG: PhpStanConfig = {
     treatPhpDocTypesAsCertain: true,
     bleedingEdge: false,
     reportUnmatchedIgnoredErrors: true,
+    reportIgnoresWithoutComments: false,
     checkImplicitMixed: false,
     checkBenevolentUnionTypes: false,
   },
@@ -274,7 +276,34 @@ export const PRESETS: Preset[] = [
   }
 ];
 
-export const RULE_EXPLANATIONS: Record<string, { summary: string; rationale: string; trades: string }> = {
+type RuleExplanation = { summary: string; rationale: string; trades: string };
+
+const REFERENCE_KEY_ALIASES: Record<string, string> = {
+  autoloadFiles: 'scanFiles',
+};
+
+function withPhpStanReference(key: string, explanation: RuleExplanation): RuleExplanation {
+  const referenceKey = REFERENCE_KEY_ALIASES[key] ?? key;
+  const reference = PHPSTAN_CONFIG_REFERENCE_BY_KEY[referenceKey];
+  if (!reference) {
+    return explanation;
+  }
+
+  const rationaleParts = [reference.summary];
+  if (reference.defaultValue) {
+    rationaleParts.push(`Default: ${reference.defaultValue}.`);
+  }
+  if (reference.availableIn) {
+    rationaleParts.push(`Available in PHPStan ${reference.availableIn}.`);
+  }
+
+  return {
+    ...explanation,
+    rationale: rationaleParts.join(' '),
+  };
+}
+
+const LOCAL_RULE_EXPLANATIONS: Record<string, RuleExplanation> = {
   level: {
     summary: 'The main knob for static testing strictness.',
     rationale: 'PHPStan 2.x has levels 0 to 10, and max is an alias for the highest available level. Progressing through the levels raises the strictness step by step so you can adopt stronger analysis without losing track of why new findings appear.',
@@ -320,6 +349,11 @@ export const RULE_EXPLANATIONS: Record<string, { summary: string; rationale: str
     rationale: 'Keeps ignoreErrors tidy by flagging patterns that no longer match any reported error. This is part of normal PHPStan 2.x configuration and helps prevent stale suppressions from silently piling up.',
     trades: 'Large refactors can temporarily surface cleanup work, but the config stays honest.',
   },
+  reportIgnoresWithoutComments: {
+    summary: 'Requires documented @phpstan-ignore usage.',
+    rationale: 'Forces every ignored identifier to carry an inline reason and rejects blanket ignore-line shortcuts, which makes error suppressions auditable during reviews.',
+    trades: 'Teams get cleaner suppressions, but older codebases may need an initial cleanup pass before enabling it.',
+  },
   checkImplicitMixed: {
     summary: 'Enables level-10-style checks for implicit mixed.',
     rationale: 'PHPStan 2.x level 10 reports implicit mixed, not just explicit mixed. This switch lets you opt into that stricter behaviour even when you are not otherwise running level 10.',
@@ -331,3 +365,7 @@ export const RULE_EXPLANATIONS: Record<string, { summary: string; rationale: str
     trades: 'It improves precision, but can add findings in code that depended on PHPStan’s usual leniency here.',
   },
 };
+
+export const RULE_EXPLANATIONS: Record<string, RuleExplanation> = Object.fromEntries(
+  Object.entries(LOCAL_RULE_EXPLANATIONS).map(([key, explanation]) => [key, withPhpStanReference(key, explanation)]),
+) as Record<string, RuleExplanation>;

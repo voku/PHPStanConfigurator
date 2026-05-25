@@ -1,0 +1,55 @@
+name: Sync PHPStan config reference
+
+on:
+  workflow_dispatch:
+    inputs:
+      phpstan_ref:
+        description: PHPStan ref to sync from
+        required: false
+        default: 2.2.x
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Sync PHPStan config reference
+        env:
+          PHPSTAN_CONFIG_REF: ${{ inputs.phpstan_ref }}
+        run: npm run sync:phpstan-config-reference
+
+      - name: Validate synced changes
+        run: |
+          npm run lint
+          npm run build
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: github-actions/sync-phpstan-config-reference
+          commit-message: "chore: sync PHPStan config reference"
+          title: "chore: sync PHPStan config reference"
+          body: |
+            ## Summary
+            - sync the generated PHPStan config reference snapshot from `${{ inputs.phpstan_ref }}`
+            - run the repository lint and build checks after regenerating the tracked data
+
+            ## Validation
+            - npm run lint
+            - npm run build
