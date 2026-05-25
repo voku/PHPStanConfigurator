@@ -853,17 +853,21 @@ export function PhpStanExtensionLibrary({
         )}
       </div>
 
-      {/* Detected Extensions & Resolver Section */}
+      {/* Extension Summary */}
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 space-y-4">
         <div className="flex items-center justify-between border-b border-rose-100/10 pb-2">
           <span className="text-xs font-bold text-slate-800 font-mono flex items-center gap-1.5 uppercase tracking-wide">
             <Puzzle className="w-4 h-4 text-indigo-600 animate-spin-slow" />
-            Detected Extensions & Resolver
+            Extension Summary
           </span>
           <span className="text-[9px] bg-indigo-100 text-indigo-700 font-mono px-2 py-0.5 rounded font-bold uppercase tracking-wider">
-            PHPStan 2.x Extension System
+            Single selection source
           </span>
         </div>
+
+        <p className="text-[10px] text-slate-500 leading-relaxed">
+          Composer scanning still highlights likely framework signals here, but the extension cards below are now the only place to enable and tune extensions.
+        </p>
 
         {/* Current Composer Signals Overview Summary */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -893,229 +897,6 @@ export function PhpStanExtensionLibrary({
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Active Extension Activations Panels grouped */}
-        <div className="space-y-3.5 pt-1">
-          {/* Group 1: Activated from composer.json */}
-          <div>
-            <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono mb-2">
-              Activated from composer.json
-            </span>
-            <div className="space-y-2">
-              {[
-                {
-                  id: 'symfony',
-                  name: 'phpstan/phpstan-symfony',
-                  detected: config.extensions.symfony,
-                  desc: 'Documents return-type support for container access, parameters, serializers, messenger handlers, and forms.'
-                },
-                {
-                  id: 'doctrine',
-                  name: 'phpstan/phpstan-doctrine',
-                  detected: config.extensions.doctrine,
-                  desc: 'Documents DQL and QueryBuilder validation, repository magic method support, field validation, and EntityRepository<MyEntity> inference.'
-                }
-              ].map((item) => {
-                const isActive = selectedExtensions.find(e => e.id === item.id)?.enabled ?? false;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => handleToggleExtension(item.id)}
-                    className={`p-3 rounded-lg border text-left transition-all flex items-start gap-3 cursor-pointer select-none ${
-                      isActive
-                        ? 'bg-indigo-50/50 border-indigo-400 text-indigo-950 shadow-xs'
-                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {isActive ? (
-                        <div className="w-4 h-4 rounded border border-indigo-600 bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                          ✓
-                        </div>
-                      ) : (
-                        <div className="w-4 h-4 rounded border border-slate-300 bg-white" />
-                      )}
-                    </div>
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-[11px] font-mono">{item.name}</span>
-                        {item.detected && (
-                          <span className="text-[8px] bg-emerald-100 text-emerald-800 font-mono font-bold px-1.5 rounded uppercase py-0.2">
-                            Detected via composer
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[10px] text-slate-500 leading-normal">{item.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Group 2: Recommended */}
-          <div>
-            <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono mb-2">
-              Recommended Extensions
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {[
-                {
-                  id: 'phpunit',
-                  name: 'phpstan/phpstan-phpunit',
-                  desc: 'Teaches PHPStan about mock return types and phpunit assertion results to avoid return-value warning mismatches.'
-                },
-                {
-                  id: 'deprecation-rules',
-                  name: 'phpstan/phpstan-deprecation-rules',
-                  desc: 'Helps trace upstream legacy structures and API deprecations to future-proof current dependencies upgrade pathways.'
-                }
-              ].map((item) => {
-                const isActive = selectedExtensions.find(e => e.id === item.id)?.enabled ?? false;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => handleToggleExtension(item.id)}
-                    className={`p-3 rounded-lg border text-left transition-all flex items-start gap-3 cursor-pointer select-none ${
-                      isActive
-                        ? 'bg-indigo-50/50 border-indigo-400 text-indigo-950 shadow-xs'
-                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {isActive ? (
-                        <div className="w-4 h-4 rounded border border-indigo-600 bg-indigo-600 text-white flex items-center justify-center font-bold text-xs">
-                          ✓
-                        </div>
-                      ) : (
-                        <div className="w-4 h-4 rounded border border-slate-300 bg-white" />
-                      )}
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="font-bold text-[11px] font-mono block">{item.name}</span>
-                      <p className="text-[10px] text-slate-500 leading-tight">{item.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Group 3: Optional strictness packs */}
-          <div>
-            <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono mb-2">
-              Optional Strictness Packs
-            </span>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {[
-                {
-                  id: 'strict-rules',
-                  name: 'phpstan/phpstan-strict-rules',
-                  desc: 'Enforces safe rules like strict-comparison parameters & type safety.'
-                },
-                {
-                  id: 'voku-rules',
-                  name: 'voku/phpstan-rules',
-                  desc: 'Forces assignments analysis, strict yoda condition handling and clean if loops.'
-                },
-                {
-                  id: 'sidz-rules',
-                  name: 'sidz/phpstan-rules',
-                  desc: 'Prevents undocumented magic number usages and enforces explanatory constants.'
-                }
-              ].map((item) => {
-                const isActive = selectedExtensions.find(e => e.id === item.id)?.enabled ?? false;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => handleToggleExtension(item.id)}
-                    className={`p-3 rounded-lg border text-left transition-all flex items-start gap-2.5 cursor-pointer select-none ${
-                      isActive
-                        ? 'bg-indigo-50/50 border-indigo-400 text-indigo-950 shadow-xs'
-                        : 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {isActive ? (
-                        <div className="w-4 h-4 rounded border border-indigo-600 bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                          ✓
-                        </div>
-                      ) : (
-                        <div className="w-4 h-4 rounded border border-slate-300 bg-white shrink-0" />
-                      )}
-                    </div>
-                    <div className="space-y-0.5">
-                      <span className="font-bold text-[10px] font-mono block leading-snug break-all">{item.name}</span>
-                      <p className="text-[9px] text-slate-500 leading-tight">{item.desc}</p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Group 4: Framework alternative */}
-          <div>
-            <span className="block text-[10px] font-bold text-slate-500 uppercase tracking-widest font-mono mb-2">
-              Framework Alternative
-            </span>
-            <div>
-              {[
-                {
-                  id: 'larastan',
-                  name: 'larastan/larastan',
-                  desc: 'Resolves Eloquent Model relations and dynamic Laravel Facades Magic Methods elegantly.'
-                }
-              ].map((item) => {
-                const isActive = selectedExtensions.find(e => e.id === item.id)?.enabled ?? false;
-                const isLaravelDetected = config.extensions.larastan;
-                return (
-                  <div
-                    key={item.id}
-                    onClick={() => {
-                      if (!isLaravelDetected) {
-                        onAddToast('Larastan requires Laravel detection. Activate Laravel in Step 1 composer scan first!', 'info');
-                      } else {
-                        handleToggleExtension(item.id);
-                      }
-                    }}
-                    className={`p-3 rounded-lg border text-left transition-all flex items-start gap-3 cursor-pointer select-none ${
-                      isActive
-                        ? 'bg-indigo-50/50 border-indigo-400 text-indigo-950 shadow-xs'
-                        : isLaravelDetected
-                          ? 'bg-white border-slate-200 hover:border-slate-300 text-slate-700'
-                          : 'bg-slate-100/70 border-slate-200 text-slate-400 opacity-65 cursor-not-allowed'
-                    }`}
-                  >
-                    <div className="mt-0.5">
-                      {isActive ? (
-                        <div className="w-4 h-4 rounded border border-indigo-600 bg-indigo-600 text-white flex items-center justify-center font-bold text-xs shrink-0">
-                          ✓
-                        </div>
-                      ) : (
-                        <div className="w-4 h-4 rounded border border-slate-300 bg-white shrink-0" />
-                      )}
-                    </div>
-                    <div className="space-y-0.5">
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold text-[11px] font-mono">{item.name}</span>
-                        {!isLaravelDetected && (
-                          <span className="text-[8px] bg-amber-100 text-amber-805 font-mono font-bold px-1.5 rounded py-0.2 uppercase">
-                            Locked (Requires Laravel)
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-[10px] text-slate-500 leading-normal">{item.desc}</p>
-                      <p className="text-[8.5px] text-slate-400 italic mt-1 leading-normal">
-                        Note: Current Larastan docs require PHP 8.2+ and Laravel 11.15+ for Larastan 3.x.
-                      </p>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </div>
 
