@@ -4,6 +4,7 @@
  */
 
 import { PhpStanConfig, StrictRules, Extensions, BaselineConfig } from '../types';
+import { getExtensionIncludeBasePath } from './phpstanExtensions';
 
 /**
  * Renders a PhpStanConfig domain object into highly readable, correct phpstan.neon string.
@@ -32,15 +33,7 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
       for (const ext of config.extensions.selectedExtensions) {
         if (ext.enabled) {
           for (const file of ext.selectedIncludes) {
-            let pkg = `vendor/phpstan/phpstan-${ext.id}`;
-            if (ext.id === 'larastan') {
-              pkg = 'vendor/nunomaduro/larastan';
-            } else if (ext.id === 'voku-rules') {
-              pkg = 'vendor/voku/phpstan-rules';
-            } else if (ext.id === 'sidz-rules') {
-              pkg = 'vendor/sidz/phpstan-rules';
-            }
-            includes.push(`${pkg}/${file}`);
+            includes.push(`${getExtensionIncludeBasePath(ext.id)}/${file}`);
           }
         }
       }
@@ -55,7 +48,7 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
         includes.push('vendor/phpstan/phpstan-doctrine/rules.neon');
       }
       if (config.extensions.larastan) {
-        includes.push('vendor/nunomaduro/larastan/extension.neon');
+        includes.push('vendor/larastan/larastan/extension.neon');
       }
     }
   }

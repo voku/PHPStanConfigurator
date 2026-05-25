@@ -4,6 +4,7 @@ import assert from 'node:assert/strict';
 import { renderNeon, parseNeon } from '../src/lib/neon';
 import { DEFAULT_CONFIG, RULE_EXPLANATIONS } from '../src/data/rules';
 import { PHPSTAN_CONFIG_REFERENCE_BY_KEY } from '../src/data/phpstanReference.generated';
+import { getExtensionComposerPackage, getExtensionIncludeBasePath } from '../src/lib/phpstanExtensions';
 
 function createConfig() {
   return {
@@ -61,4 +62,25 @@ test('synced PHPStan reference is keyed for reportIgnoresWithoutComments and fee
   assert.ok(explanation);
   assert.match(explanation.rationale, /Default: false\./);
   assert.match(explanation.rationale, /Available in PHPStan 2\.1\.41\./);
+});
+
+test('extension helpers map renamed and nonstandard packages correctly', () => {
+  assert.equal(getExtensionComposerPackage('larastan'), 'larastan/larastan');
+  assert.equal(getExtensionIncludeBasePath('larastan'), 'vendor/larastan/larastan');
+  assert.equal(getExtensionComposerPackage('psl'), 'php-standard-library/phpstan-extension');
+  assert.equal(getExtensionIncludeBasePath('psl'), 'vendor/php-standard-library/phpstan-extension');
+});
+
+test('renderNeon uses current include paths for mapped extensions', () => {
+  const config = createConfig();
+  config.extensions.installationStrategy = 'manual_includes';
+  config.extensions.selectedExtensions = [
+    { id: 'larastan', enabled: true, selectedIncludes: ['extension.neon'] },
+    { id: 'psl', enabled: true, selectedIncludes: ['extension.neon'] },
+  ];
+
+  const neon = renderNeon(config, 'Test Preset');
+
+  assert.match(neon, /vendor\/larastan\/larastan\/extension\.neon/);
+  assert.match(neon, /vendor\/php-standard-library\/phpstan-extension\/extension\.neon/);
 });

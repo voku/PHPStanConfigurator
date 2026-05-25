@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Copy, Download, Check, X, FileCode, ShieldCheck, Terminal, ShieldAlert, Info } from 'lucide-react';
 import { PhpStanConfig } from '../types';
+import { getExtensionComposerPackage } from '../lib/phpstanExtensions';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -37,19 +38,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
     if (config.extensions.selectedExtensions) {
       for (const ext of config.extensions.selectedExtensions) {
         if (ext.enabled) {
-          let pkg = `phpstan/phpstan-${ext.id}`;
-          if (ext.id === 'larastan') {
-            pkg = 'larastan/larastan';
-          } else if (ext.id === 'voku-rules') {
-            pkg = 'voku/phpstan-rules';
-          } else if (ext.id === 'sidz-rules') {
-            pkg = 'sidz/phpstan-rules';
-          } else if (ext.id === 'strict-rules') {
-            pkg = 'phpstan/phpstan-strict-rules';
-          } else if (ext.id === 'deprecation-rules') {
-            pkg = 'phpstan/phpstan-deprecation-rules';
-          }
-          packages.push(pkg);
+          packages.push(getExtensionComposerPackage(ext.id));
         }
       }
     } else {
@@ -117,8 +106,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
     if (vokuActive) {
       impacts.push({
         title: 'voku / phpstan-rules Pack',
-        desc: 'Opinionated, robust security and standards typing rules built by Lars Moelleken to prevent runtime logic exceptions.',
-        type: 'warning'
+        desc: 'Adds opinionated checks for suspicious conditions, comparisons, and assignments inside conditional logic.',
+        type: 'info'
       });
     }
     if (sidzActive) {

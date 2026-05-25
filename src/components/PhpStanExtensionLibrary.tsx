@@ -9,12 +9,13 @@ import {
   Compass, Code, Plus, Trash2, ChevronRight, Layers, ShieldAlert, Sparkles, BookOpen
 } from 'lucide-react';
 import { PhpStanConfig, SelectedExtension, InstallationStrategy, VokuParameters, SidzParameters } from '../types';
+import { OFFICIAL_DOC_EXTENSION_PACKAGES, getExtensionComposerPackage, getExtensionIncludeBasePath } from '../lib/phpstanExtensions';
 
 export interface PhpStanExtension {
   id: string;
   name: string;
   composerPackage: string;
-  category: 'Official' | 'Framework' | 'Rule Pack' | 'Testing' | 'Database' | 'Security' | 'voku' | 'AI Hardening';
+  category: 'Official' | 'Framework' | 'Rule Pack' | 'Testing' | 'Database' | 'Assertion' | 'AI Hardening';
   typeLabel: string;
   includes: string[]; // files inside package e.g. ['extension.neon', 'rules.neon']
   tags: string[];
@@ -62,14 +63,14 @@ export const EXTENSIONS_LIBRARY: PhpStanExtension[] = [
     id: 'voku-rules',
     name: 'voku / phpstan-rules',
     composerPackage: 'voku/phpstan-rules',
-    category: 'voku',
+    category: 'Rule Pack',
     typeLabel: '3rd party rule pack',
     includes: ['rules.neon'],
     tags: ['voku', 'conditions', 'defensive-php', 'rule-pack'],
     strictnessImpact: 'Medium',
-    target: 'legacy Modernization & condition safety checks',
-    description: 'Additional highly opinionated PHPStan rules for defensive PHP code. Helps trace unsafe/redundant conditions, suspicious comparisons, operator miscues, and assignments inside conditions.',
-    recommendedFor: 'Legacy modernization, condition cleanup, suspicious comparison detection, and stricter team-wide reviewer quality gates.',
+    target: 'Condition safety and defensive checks',
+    description: 'Adds opinionated rule checks for suspicious conditions, comparisons, operator mix-ups, and assignments inside conditions.',
+    recommendedFor: 'Teams that want extra review pressure around conditions, comparisons, and defensive control-flow checks.',
     minPhpVersion: 8.2,
     supportsExtensionInstaller: true,
     capabilities: {
@@ -82,7 +83,7 @@ export const EXTENSIONS_LIBRARY: PhpStanExtension[] = [
     id: 'strict-rules',
     name: 'phpstan/phpstan-strict-rules',
     composerPackage: 'phpstan/phpstan-strict-rules',
-    category: 'Rule Pack',
+    category: 'Official',
     typeLabel: 'Official rule pack',
     includes: ['rules.neon'],
     tags: ['strictness', 'correctness', 'official'],
@@ -163,8 +164,8 @@ export const EXTENSIONS_LIBRARY: PhpStanExtension[] = [
     id: 'deprecation-rules',
     name: 'phpstan/phpstan-deprecation-rules',
     composerPackage: 'phpstan/phpstan-deprecation-rules',
-    category: 'Rule Pack',
-    typeLabel: 'Migration tracking pack',
+    category: 'Official',
+    typeLabel: 'Official rule pack',
     includes: ['rules.neon'],
     tags: ['deprecations', 'maintenance', 'official'],
     strictnessImpact: 'Low',
@@ -196,6 +197,126 @@ export const EXTENSIONS_LIBRARY: PhpStanExtension[] = [
     capabilities: {
       typeInference: ['Mock Object Typings', 'Assert Assertion Post-Conditions'],
       ruleEnforcement: ['Assertion Type Safety validations'],
+      infrastructure: []
+    }
+  },
+  {
+    id: 'beberlei-assert',
+    name: 'phpstan/phpstan-beberlei-assert',
+    composerPackage: 'phpstan/phpstan-beberlei-assert',
+    category: 'Assertion',
+    typeLabel: 'Official assertion extension',
+    includes: ['extension.neon'],
+    tags: ['assertions', 'runtime-guards', 'official'],
+    strictnessImpact: 'Low',
+    target: 'beberlei/assert guard awareness',
+    description: 'Teaches PHPStan which beberlei/assert guards refine types, so runtime assertions also improve static analysis.',
+    recommendedFor: 'Projects using beberlei/assert to validate inputs or narrow types before deeper domain logic.',
+    minPhpVersion: 7.4,
+    supportsExtensionInstaller: true,
+    capabilities: {
+      typeInference: ['Assertion-based Type Narrowing'],
+      ruleEnforcement: [],
+      infrastructure: []
+    }
+  },
+  {
+    id: 'webmozart-assert',
+    name: 'phpstan/phpstan-webmozart-assert',
+    composerPackage: 'phpstan/phpstan-webmozart-assert',
+    category: 'Assertion',
+    typeLabel: 'Official assertion extension',
+    includes: ['extension.neon'],
+    tags: ['assertions', 'runtime-guards', 'official'],
+    strictnessImpact: 'Low',
+    target: 'webmozart/assert guard awareness',
+    description: 'Adds static understanding for webmozart/assert checks so assertions narrow values, arrays, and class strings correctly.',
+    recommendedFor: 'Projects that rely on webmozart/assert for validation-heavy application services or shared packages.',
+    minPhpVersion: 7.4,
+    supportsExtensionInstaller: true,
+    capabilities: {
+      typeInference: ['Assertion-based Type Narrowing'],
+      ruleEnforcement: [],
+      infrastructure: []
+    }
+  },
+  {
+    id: 'mockery',
+    name: 'phpstan/phpstan-mockery',
+    composerPackage: 'phpstan/phpstan-mockery',
+    category: 'Testing',
+    typeLabel: 'Official testing extension',
+    includes: ['extension.neon'],
+    tags: ['testing', 'mockery', 'official'],
+    strictnessImpact: 'Low',
+    target: 'Mockery test doubles',
+    description: 'Improves static analysis for Mockery expectations, fluent test doubles, and generated mock return types.',
+    recommendedFor: 'Test suites that use Mockery instead of, or alongside, PHPUnit-native mocks.',
+    minPhpVersion: 7.4,
+    supportsExtensionInstaller: true,
+    capabilities: {
+      typeInference: ['Mockery Expectation Type Inference'],
+      ruleEnforcement: [],
+      infrastructure: []
+    }
+  },
+  {
+    id: 'psl',
+    name: 'php-standard-library/phpstan-extension',
+    composerPackage: 'php-standard-library/phpstan-extension',
+    category: 'Official',
+    typeLabel: 'Official library extension',
+    includes: ['extension.neon'],
+    tags: ['psl', 'utility-library', 'official'],
+    strictnessImpact: 'Low',
+    target: 'azjezz/psl helper functions',
+    description: 'Adds PHPStan knowledge for PSL collection, string, filesystem, and math helpers so utility calls retain accurate types.',
+    recommendedFor: 'Codebases built on azjezz/psl that want utility helpers to stay fully typed in analysis.',
+    minPhpVersion: 8.1,
+    supportsExtensionInstaller: true,
+    capabilities: {
+      typeInference: ['PSL Helper Return Types'],
+      ruleEnforcement: [],
+      infrastructure: []
+    }
+  },
+  {
+    id: 'nette',
+    name: 'phpstan/phpstan-nette',
+    composerPackage: 'phpstan/phpstan-nette',
+    category: 'Framework',
+    typeLabel: 'Official framework extension',
+    includes: ['extension.neon'],
+    tags: ['nette', 'framework', 'official'],
+    strictnessImpact: 'Medium',
+    target: 'Nette framework services and DI',
+    description: 'Brings Nette-specific container, presenter, and framework service awareness into PHPStan analysis.',
+    recommendedFor: 'Nette applications that depend on framework DI, presenters, and generated service wiring.',
+    minPhpVersion: 8.1,
+    supportsExtensionInstaller: true,
+    capabilities: {
+      typeInference: ['Container and Service Resolution'],
+      ruleEnforcement: [],
+      infrastructure: []
+    }
+  },
+  {
+    id: 'dibi',
+    name: 'phpstan/phpstan-dibi',
+    composerPackage: 'phpstan/phpstan-dibi',
+    category: 'Database',
+    typeLabel: 'Official database extension',
+    includes: ['extension.neon'],
+    tags: ['database', 'dibi', 'official'],
+    strictnessImpact: 'Low',
+    target: 'Dibi database abstraction',
+    description: 'Adds type support for Dibi database abstractions, result sets, and fluent query usage.',
+    recommendedFor: 'Projects using dibi/dibi for database access and query building.',
+    minPhpVersion: 8.1,
+    supportsExtensionInstaller: true,
+    capabilities: {
+      typeInference: ['Database Result Type Inference'],
+      ruleEnforcement: [],
       infrastructure: []
     }
   }
@@ -238,7 +359,13 @@ export function PhpStanExtensionLibrary({
     { id: 'doctrine', enabled: config.extensions.doctrine || false, selectedIncludes: ['extension.neon', 'rules.neon'] },
     { id: 'symfony', enabled: config.extensions.symfony || false, selectedIncludes: ['extension.neon', 'rules.neon'] },
     { id: 'larastan', enabled: config.extensions.larastan || false, selectedIncludes: ['extension.neon'] },
-    { id: 'phpunit', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] }
+    { id: 'phpunit', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
+    { id: 'beberlei-assert', enabled: false, selectedIncludes: ['extension.neon'] },
+    { id: 'webmozart-assert', enabled: false, selectedIncludes: ['extension.neon'] },
+    { id: 'mockery', enabled: false, selectedIncludes: ['extension.neon'] },
+    { id: 'psl', enabled: false, selectedIncludes: ['extension.neon'] },
+    { id: 'nette', enabled: false, selectedIncludes: ['extension.neon'] },
+    { id: 'dibi', enabled: false, selectedIncludes: ['extension.neon'] }
   ];
 
   const selectedExtensions = defaultExList.map(def => {
@@ -482,14 +609,12 @@ export function PhpStanExtensionLibrary({
   // Render browser filters
   const filteredExtensions = EXTENSIONS_LIBRARY.filter(ext => {
     if (selectedCategory === 'All') return true;
-    if (selectedCategory === 'Official') return ext.category === 'Official' || ext.id === 'strict-rules';
-    if (selectedCategory === 'Framework') return ext.category === 'Framework' || ext.id === 'larastan';
+    if (selectedCategory === 'Official') return OFFICIAL_DOC_EXTENSION_PACKAGES.some(pkg => pkg === ext.composerPackage);
+    if (selectedCategory === 'Framework') return ext.category === 'Framework';
     if (selectedCategory === 'Testing') return ext.category === 'Testing';
     if (selectedCategory === 'Database') return ext.category === 'Database';
-    if (selectedCategory === 'Rule Packs') return ext.category === 'Rule Pack' || ext.category === 'voku' || ext.category === 'AI Hardening';
-    if (selectedCategory === 'Security') return ext.category === 'Security' || ext.id === 'strict-rules' || ext.id === 'voku-rules' || ext.id === 'sidz-rules';
-    if (selectedCategory === 'AI Hardening') return ext.category === 'AI Hardening' || ext.id === 'sidz-rules' || ext.id === 'voku-rules' || ext.id === 'strict-rules';
-    if (selectedCategory === 'voku') return ext.category === 'voku';
+    if (selectedCategory === 'Rule Packs') return ext.category === 'Rule Pack' || ext.category === 'AI Hardening';
+    if (selectedCategory === 'Assertions') return ext.category === 'Assertion';
     return true;
   });
 
@@ -504,16 +629,36 @@ export function PhpStanExtensionLibrary({
             3. Extension Library & Static Analysis Capabilities
           </h3>
         </div>
-        <span className="text-[10px] bg-slate-100/90 text-indigo-600 font-extrabold px-2 py-0.5 rounded-full font-mono">
-          VOKU/PHPSTAN OFFICIAL
-        </span>
+        <a
+          href="https://phpstan.org/user-guide/extension-library"
+          target="_blank"
+          rel="noreferrer"
+          className="text-[10px] bg-slate-100/90 text-slate-700 font-bold px-2 py-0.5 rounded-full font-mono hover:text-indigo-700"
+        >
+          PHPStan docs reference
+        </a>
       </div>
 
       <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
         <p className="text-[11px] text-slate-600 leading-normal">
-          PHPStan becomes extremely valuable in real-world code bases via its modular extension architecture. 
-          They teach the static engine about <strong>implicit framework attributes</strong>, magic methods handling (e.g. <code className="bg-white px-1 border rounded text-rose-500 font-mono text-[10px]">__get</code>, <code className="bg-white px-1 border rounded text-rose-500 font-mono text-[10px]">__call</code>), dynamic return types, and proprietary ORM properties validation options.
+          PHPStan becomes more useful when extensions teach it about framework services, assertion libraries, mock objects, dynamic return types, and database abstractions.
         </p>
+        <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3">
+          <div className="flex items-center gap-1.5 text-[10px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
+            Referenced by the official PHPStan extension library docs
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {OFFICIAL_DOC_EXTENSION_PACKAGES.map((pkg) => (
+              <span
+                key={pkg}
+                className="rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[9px] font-mono text-slate-700"
+              >
+                {pkg}
+              </span>
+            ))}
+          </div>
+        </div>
 
         {/* Dynamic Static Analysis Capabilities tab reference helper */}
         <div className="border border-slate-200/80 bg-white rounded-lg p-3 space-y-2">
@@ -978,7 +1123,7 @@ export function PhpStanExtensionLibrary({
       <div className="space-y-3">
         
         <div className="flex flex-wrap gap-1 bg-slate-50 border p-1 rounded-xl">
-          {['All', 'Official', 'Framework', 'Testing', 'Database', 'Rule Packs', 'Security', 'AI Hardening', 'voku'].map((tab) => {
+          {['All', 'Official', 'Framework', 'Testing', 'Database', 'Rule Packs', 'Assertions'].map((tab) => {
             const isActive = selectedCategory === tab;
             return (
               <button
@@ -1020,16 +1165,9 @@ export function PhpStanExtensionLibrary({
                 <div className="space-y-2.5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <div className="flex items-center gap-1.5">
-                        <h4 className="font-bold text-slate-900 text-xs font-sans">
-                          {ext.name}
-                        </h4>
-                        {ext.id === 'voku-rules' && (
-                          <span className="text-[8px] font-bold uppercase font-mono px-1.5 bg-yellow-105 text-yellow-800 border border-yellow-300 rounded">
-                            Official voku Pack
-                          </span>
-                        )}
-                      </div>
+                      <h4 className="font-bold text-slate-900 text-xs font-sans">
+                        {ext.name}
+                      </h4>
                       
                       <span className="text-[9px] text-slate-400 font-mono">
                         composer Package: {ext.composerPackage}
@@ -1092,7 +1230,7 @@ export function PhpStanExtensionLibrary({
 
                       <div className="text-[10px] text-slate-550 bg-slate-50 border border-slate-200/80 rounded-lg p-2.5 font-sans space-y-1">
                         <p><strong>Recommended For:</strong> {ext.recommendedFor}</p>
-                        <p><strong>Strictness impact:</strong> {ext.id === 'voku-rules' ? 'Medium to High' : ext.strictnessImpact}</p>
+                        <p><strong>Strictness impact:</strong> {ext.strictnessImpact}</p>
                         {ext.risk && <p className="text-amber-700 font-medium"><strong>Risk Checklist:</strong> {ext.risk}</p>}
                       </div>
 
@@ -1394,7 +1532,7 @@ export function PhpStanExtensionLibrary({
                           <div>
                             <span className="font-bold text-slate-700">Shell Terminal Command:</span>
                             <div className="bg-slate-900 text-slate-300 p-1 rounded font-mono text-[8px] overflow-x-auto whitespace-nowrap mt-0.5">
-                              composer require --dev {ext.composerPackage} {installationStrategy === 'auto_installer' && 'phpstan/extension-installer'}
+                              composer require --dev {getExtensionComposerPackage(ext.id)}{installationStrategy === 'auto_installer' ? ' phpstan/extension-installer' : ''}
                             </div>
                           </div>
 
@@ -1407,17 +1545,9 @@ export function PhpStanExtensionLibrary({
                               <span className="font-bold text-slate-700">Manual includes lines in neon:</span>
                               <div className="text-[8px] text-indigo-700/90 font-semibold bg-indigo-50 px-1.5 py-1 rounded space-y-0.5 border border-indigo-100 mt-1">
                                 {tracker.selectedIncludes.map((file) => {
-                                  let pkgPath = `vendor/phpstan/phpstan-${ext.id}`;
-                                  if (ext.id === 'voku-rules') {
-                                    pkgPath = 'vendor/voku/phpstan-rules';
-                                  } else if (ext.id === 'larastan') {
-                                    pkgPath = 'vendor/nunomaduro/larastan';
-                                  } else if (ext.id === 'sidz-rules') {
-                                    pkgPath = 'vendor/sidz/phpstan-rules';
-                                  }
                                   return (
                                     <div key={file}>
-                                      - {pkgPath}/{file}
+                                      - {getExtensionIncludeBasePath(ext.id)}/{file}
                                     </div>
                                   );
                                 })}
