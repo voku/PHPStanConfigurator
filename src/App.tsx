@@ -76,6 +76,36 @@ export default function App() {
     setToast({ message, type });
   };
 
+  const mergeImportedConfig = (parsed: Partial<PhpStanConfig>, fallback: PhpStanConfig): PhpStanConfig => ({
+    level: parsed.level ?? fallback.level,
+    targetVersion: parsed.targetVersion ?? fallback.targetVersion,
+    phpVersion: parsed.phpVersion ?? fallback.phpVersion,
+    paths: parsed.paths ?? fallback.paths,
+    excludes: parsed.excludes ?? fallback.excludes,
+    bootstrapFiles: parsed.bootstrapFiles ?? fallback.bootstrapFiles,
+    autoloadFiles: parsed.autoloadFiles ?? fallback.autoloadFiles,
+    strictRules: {
+      treatPhpDocTypesAsCertain: parsed.strictRules?.treatPhpDocTypesAsCertain ?? fallback.strictRules.treatPhpDocTypesAsCertain,
+      bleedingEdge: parsed.strictRules?.bleedingEdge ?? fallback.strictRules.bleedingEdge,
+      reportUnmatchedIgnoredErrors: parsed.strictRules?.reportUnmatchedIgnoredErrors ?? fallback.strictRules.reportUnmatchedIgnoredErrors,
+      reportIgnoresWithoutComments: parsed.strictRules?.reportIgnoresWithoutComments ?? fallback.strictRules.reportIgnoresWithoutComments,
+      checkImplicitMixed: parsed.strictRules?.checkImplicitMixed ?? fallback.strictRules.checkImplicitMixed,
+      checkBenevolentUnionTypes: parsed.strictRules?.checkBenevolentUnionTypes ?? fallback.strictRules.checkBenevolentUnionTypes,
+    },
+    extensions: {
+      doctrine: parsed.extensions?.doctrine ?? fallback.extensions.doctrine,
+      symfony: parsed.extensions?.symfony ?? fallback.extensions.symfony,
+      larastan: parsed.extensions?.larastan ?? fallback.extensions.larastan,
+      customIncludes: parsed.extensions?.customIncludes ?? fallback.extensions.customIncludes,
+      installationStrategy: parsed.extensions?.installationStrategy ?? fallback.extensions.installationStrategy,
+      selectedExtensions: parsed.extensions?.selectedExtensions ?? fallback.extensions.selectedExtensions,
+      vokuParameters: parsed.extensions?.vokuParameters ?? fallback.extensions.vokuParameters,
+      sidzParameters: parsed.extensions?.sidzParameters ?? fallback.extensions.sidzParameters,
+    },
+    baseline: parsed.baseline !== undefined ? parsed.baseline : fallback.baseline,
+    importedRawBlocks: parsed.importedRawBlocks ?? fallback.importedRawBlocks,
+  });
+
   useEffect(() => {
     if (toast) {
       const timer = setTimeout(() => {
@@ -264,31 +294,7 @@ export default function App() {
   // Custom Neon string parser loader
   const handleNeonImport = (neonString: string) => {
     const parsed = parseNeon(neonString);
-    
-    // Merge updates with default fallback values
-    const merged: PhpStanConfig = {
-      level: parsed.level ?? config.level,
-      phpVersion: parsed.phpVersion ?? config.phpVersion,
-      paths: parsed.paths ?? config.paths,
-      excludes: parsed.excludes ?? config.excludes,
-      bootstrapFiles: parsed.bootstrapFiles ?? config.bootstrapFiles,
-      autoloadFiles: parsed.autoloadFiles ?? config.autoloadFiles,
-      strictRules: {
-        treatPhpDocTypesAsCertain: parsed.strictRules?.treatPhpDocTypesAsCertain ?? config.strictRules.treatPhpDocTypesAsCertain,
-        bleedingEdge: parsed.strictRules?.bleedingEdge ?? config.strictRules.bleedingEdge,
-        reportUnmatchedIgnoredErrors: parsed.strictRules?.reportUnmatchedIgnoredErrors ?? config.strictRules.reportUnmatchedIgnoredErrors,
-        reportIgnoresWithoutComments: parsed.strictRules?.reportIgnoresWithoutComments ?? config.strictRules.reportIgnoresWithoutComments,
-        checkImplicitMixed: parsed.strictRules?.checkImplicitMixed ?? config.strictRules.checkImplicitMixed,
-        checkBenevolentUnionTypes: parsed.strictRules?.checkBenevolentUnionTypes ?? config.strictRules.checkBenevolentUnionTypes,
-      },
-      extensions: {
-        doctrine: parsed.extensions?.doctrine ?? config.extensions.doctrine,
-        symfony: parsed.extensions?.symfony ?? config.extensions.symfony,
-        larastan: parsed.extensions?.larastan ?? config.extensions.larastan,
-        customIncludes: parsed.extensions?.customIncludes ?? config.extensions.customIncludes,
-      },
-      baseline: parsed.baseline !== undefined ? parsed.baseline : config.baseline,
-    };
+    const merged = mergeImportedConfig(parsed, config);
 
     setConfig(merged);
     
@@ -707,7 +713,7 @@ export default function App() {
                       onClick={() => {
                         try {
                           const parsed = parseNeon(importText);
-                          setConfig(parsed);
+                          setConfig(mergeImportedConfig(parsed, DEFAULT_CONFIG));
                           showToast('Imported and mapped PHPStan config successfully.', 'success');
                         } catch (err: any) {
                           showToast(`Failed to parse config: ${err.message}`, 'info');
