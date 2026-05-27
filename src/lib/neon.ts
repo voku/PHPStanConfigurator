@@ -438,6 +438,35 @@ function parseVokuBlock(blockLines: string[]): Extensions['vokuParameters'] | nu
   };
 }
 
+function parseExcludePathsBlock(blockLines: string[]): string[] | null {
+  const directItems = parseNeonListItems(blockLines);
+  if (directItems !== null) {
+    return directItems;
+  }
+
+  const nestedBlocks = splitBlocks(blockLines.slice(1));
+  if (nestedBlocks.length === 0) {
+    return null;
+  }
+
+  const items: string[] = [];
+
+  for (const block of nestedBlocks) {
+    if (block.key !== 'analyse' && block.key !== 'analyseAndScan') {
+      return null;
+    }
+
+    const nestedItems = parseNeonListItems(normalizeBlockLines(block));
+    if (nestedItems === null) {
+      return null;
+    }
+
+    items.push(...nestedItems);
+  }
+
+  return items;
+}
+
 export function parseNeon(neonString: string): Partial<PhpStanConfig> {
   const result: Partial<PhpStanConfig> = {};
   const strictRules: Partial<StrictRules> = {};
@@ -538,7 +567,7 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
       }
 
       if (parameterBlock.key === 'excludePaths') {
-        const items = parseNeonListItems(normalizedParameterLines);
+        const items = parseExcludePathsBlock(normalizedParameterLines);
         if (items === null) {
           preservedBlocks.parameterBlocks.push(parameterBlock);
           continue;

@@ -113,7 +113,7 @@ test('renderNeon uses official bleeding edge include path and formats PHP 8.5', 
   assert.match(neon, /phpVersion: 80500 # 8\.5/);
 });
 
-test('parseNeon preserves complex imported parameter blocks instead of flattening them into generated config', () => {
+test('parseNeon adapts supported values from complex imports while preserving unsupported blocks', () => {
   const imported = `includes:
     - %currentWorkingDirectory%/infra/githooks/phpstan-baselines/_loader.neon
     - %currentWorkingDirectory%/vendor/voku/phpstan-agent-format/extension.neon
@@ -173,12 +173,14 @@ parameters:
     'DateTimeImmutable',
     'DateTime',
   ]);
+  assert.deepEqual(parsed.excludes, ['*/lib/application/constants/GlobalConstantsCodes.php']);
   assert.equal(parsed.baseline?.path, '%currentWorkingDirectory%/infra/githooks/phpstan-baselines/_loader.neon');
   assert.ok(parsed.importedRawBlocks?.parameterBlocks.some((block) => block.key === 'fileExtensions'));
   assert.ok(parsed.importedRawBlocks?.parameterBlocks.some((block) => block.key === 'parallel'));
+  assert.ok(!parsed.importedRawBlocks?.parameterBlocks.some((block) => block.key === 'excludePaths'));
   assert.match(neon, /^\s+fileExtensions:\n\s+- php\n\s+- inc/m);
   assert.match(neon, /^\s+parallel:\n\s+processTimeout: 900\.0/m);
   assert.match(neon, /^\s+type_coverage:\n\s+constant: 100/m);
-  assert.match(neon, /^\s+excludePaths:\n\s+analyse:\n\s+- \*\/lib\/application\/constants\/GlobalConstantsCodes\.php/m);
+  assert.match(neon, /^\s+excludePaths:\n\s+- \*\/lib\/application\/constants\/GlobalConstantsCodes\.php/m);
   assert.match(neon, /^\s+ignoreErrors:\n\s+- '#@readonly property cannot have a default value\\\.\#'/m);
 });
