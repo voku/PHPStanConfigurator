@@ -50,6 +50,16 @@ export interface BaselineConfig {
   warningAboutStale: boolean;
 }
 
+export interface PreservedNeonBlock {
+  key: string;
+  lines: string[];
+}
+
+export interface ImportedNeonPreservation {
+  parameterBlocks: PreservedNeonBlock[];
+  topLevelBlocks: PreservedNeonBlock[];
+}
+
 export interface PhpStanConfig {
   level: string; // "0" - "10", or "max"
   targetVersion?: '1.x' | '2.x'; // Target PHPStan version
@@ -61,6 +71,7 @@ export interface PhpStanConfig {
   strictRules: StrictRules;
   extensions: Extensions;
   baseline: BaselineConfig | null;
+  importedRawBlocks?: ImportedNeonPreservation;
 }
 
 export interface Preset {

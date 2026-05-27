@@ -36,6 +36,23 @@ function createConfig() {
   };
 }
 
+function mergeParsedConfig(parsed: ReturnType<typeof parseNeon>) {
+  return {
+    ...createConfig(),
+    ...parsed,
+    strictRules: {
+      ...createConfig().strictRules,
+      ...parsed.strictRules,
+    },
+    extensions: {
+      ...createConfig().extensions,
+      ...parsed.extensions,
+    },
+    baseline: parsed.baseline === undefined ? createConfig().baseline : parsed.baseline,
+    importedRawBlocks: parsed.importedRawBlocks,
+  };
+}
+
 test('renderNeon and parseNeon round-trip reportIgnoresWithoutComments', () => {
   const config = createConfig();
   config.strictRules.reportIgnoresWithoutComments = true;
@@ -94,4 +111,76 @@ test('renderNeon uses official bleeding edge include path and formats PHP 8.5', 
 
   assert.match(neon, /phar:\/\/phpstan\.phar\/conf\/bleedingEdge\.neon/);
   assert.match(neon, /phpVersion: 80500 # 8\.5/);
+});
+
+test('parseNeon adapts supported values from complex imports while preserving unsupported blocks', () => {
+  const imported = `includes:
+    - %currentWorkingDirectory%/infra/githooks/phpstan-baselines/_loader.neon
+    - %currentWorkingDirectory%/vendor/voku/phpstan-agent-format/extension.neon
+    - %currentWorkingDirectory%/vendor/voku/phpstan-rules/rules.neon
+    - %currentWorkingDirectory%/vendor/sidz/phpstan-rules/rules.neon
+    - %currentWorkingDirectory%/vendor/phpstan/phpstan-strict-rules/rules.neon
+    - %currentWorkingDirectory%/vendor/dave-liddament/phpstan-php-language-extensions/extension.neon
+    - %currentWorkingDirectory%/vendor/tomasvotruba/type-coverage/config/extension.neon
+parameters:
+    parallel:
+        processTimeout: 900.0
+        maximumNumberOfProcesses: 10
+        minimumNumberOfJobsPerProcess: 1
+    fileExtensions:
+        - php
+        - inc
+    phpVersion: 80399
+    level: 8
+    tmpDir: /tmp/phpstan_new_files
+    reportUnmatchedIgnoredErrors: false
+    checkImplicitMixed: true
+    checkBenevolentUnionTypes: true
+    sidzIgnoreMagicNumbers: [0, 1, 2, 3, 100, 128, 512, 1024]
+    type_coverage:
+        constant: 100
+        return: 100
+        param: 100
+        property: 100
+        declare: 3
+    voku:
+        classesNotInIfConditions: [
+            AbstractValueObject
+            AbstractDataTransferObject
+            Date
+            DateTimeImmutable
+            DateTime
+        ]
+    excludePaths:
+        analyse:
+            - */lib/application/constants/GlobalConstantsCodes.php
+    ignoreErrors:
+        - '#@readonly property cannot have a default value\\.#'
+`;
+
+  const parsed = parseNeon(imported);
+  const neon = renderNeon(mergeParsedConfig(parsed), 'Imported');
+
+  assert.deepEqual(parsed.extensions?.customIncludes, [
+    '%currentWorkingDirectory%/vendor/voku/phpstan-agent-format/extension.neon',
+    '%currentWorkingDirectory%/vendor/dave-liddament/phpstan-php-language-extensions/extension.neon',
+    '%currentWorkingDirectory%/vendor/tomasvotruba/type-coverage/config/extension.neon',
+  ]);
+  assert.deepEqual(parsed.extensions?.vokuParameters?.classesNotInIfConditions, [
+    'AbstractValueObject',
+    'AbstractDataTransferObject',
+    'Date',
+    'DateTimeImmutable',
+    'DateTime',
+  ]);
+  assert.deepEqual(parsed.excludes, ['*/lib/application/constants/GlobalConstantsCodes.php']);
+  assert.equal(parsed.baseline?.path, '%currentWorkingDirectory%/infra/githooks/phpstan-baselines/_loader.neon');
+  assert.ok(parsed.importedRawBlocks?.parameterBlocks.some((block) => block.key === 'fileExtensions'));
+  assert.ok(parsed.importedRawBlocks?.parameterBlocks.some((block) => block.key === 'parallel'));
+  assert.ok(!parsed.importedRawBlocks?.parameterBlocks.some((block) => block.key === 'excludePaths'));
+  assert.match(neon, /^\s+fileExtensions:\n\s+- php\n\s+- inc/m);
+  assert.match(neon, /^\s+parallel:\n\s+processTimeout: 900\.0/m);
+  assert.match(neon, /^\s+type_coverage:\n\s+constant: 100/m);
+  assert.match(neon, /^\s+excludePaths:\n\s+- \*\/lib\/application\/constants\/GlobalConstantsCodes\.php/m);
+  assert.match(neon, /^\s+ignoreErrors:\n\s+- '#@readonly property cannot have a default value\\\.\#'/m);
 });
