@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 import { DEFAULT_CONFIG } from '../src/data/rules';
+import { PhpStanConfig } from '../src/types';
 import {
   analyzeComposerDependencies,
   getCommunityRuleIncludePaths,
@@ -12,7 +13,7 @@ import {
 import { getComposerCommand, getComposerPackages, getExportGuidanceBlocks } from '../src/lib/export';
 import { renderNeon } from '../src/lib/neon';
 
-function createConfig() {
+function createConfig(): PhpStanConfig {
   return {
     ...DEFAULT_CONFIG,
     strictRules: {
@@ -63,7 +64,7 @@ test('package recommendation logic is deterministic for laravel and library cont
   );
   assert.equal(
     laravelRecommendations.find((entry) => entry.packageId === 'shipmonk-rules')?.recommendation,
-    'advanced'
+    'suggested'
   );
 
   const libraryConfig = createConfig();
