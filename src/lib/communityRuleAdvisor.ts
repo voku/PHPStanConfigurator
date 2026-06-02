@@ -44,16 +44,21 @@ export function analyzeComposerDependencies(input: string): DependencyScanResult
     return null;
   }
 
-  let parsed: Record<string, unknown>;
+  let parsed: unknown;
 
   try {
-    parsed = JSON.parse(input) as Record<string, unknown>;
+    parsed = JSON.parse(input);
   } catch {
     return null;
   }
 
-  const require = typeof parsed.require === 'object' && parsed.require !== null ? parsed.require as Record<string, string> : {};
-  const requireDev = typeof parsed['require-dev'] === 'object' && parsed['require-dev'] !== null ? parsed['require-dev'] as Record<string, string> : {};
+  if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+    return null;
+  }
+
+  const parsedRecord = parsed as Record<string, unknown>;
+  const require = typeof parsedRecord.require === 'object' && parsedRecord.require !== null ? parsedRecord.require as Record<string, string> : {};
+  const requireDev = typeof parsedRecord['require-dev'] === 'object' && parsedRecord['require-dev'] !== null ? parsedRecord['require-dev'] as Record<string, string> : {};
   const packageNames = Array.from(new Set([...Object.keys(require), ...Object.keys(requireDev)])).sort();
 
   const frameworks = {

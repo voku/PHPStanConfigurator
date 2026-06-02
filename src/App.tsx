@@ -172,7 +172,7 @@ export default function App() {
     setLocalComposerStatus({ message: '', type: null, detected: [] });
 
     try {
-      const dependencyScan = analyzeComposerDependencies(composerText);
+      const dependencyScan = composerDependencyScan;
 
       if (!dependencyScan) {
         throw new Error('Could not read package properties from keys "require" or "require-dev".');

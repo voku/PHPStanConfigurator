@@ -25,11 +25,17 @@ export const DEFAULT_SELECTED_EXTENSIONS: SelectedExtension[] = [
 export function resolveSelectedExtensions(extensions: Extensions): SelectedExtension[] {
   return DEFAULT_SELECTED_EXTENSIONS.map((defaultExtension) => {
     const existing = extensions.selectedExtensions?.find((extension) => extension.id === defaultExtension.id);
+    const legacyEnabled = (
+      (defaultExtension.id === 'doctrine' && extensions.doctrine) ||
+      (defaultExtension.id === 'symfony' && extensions.symfony) ||
+      (defaultExtension.id === 'larastan' && extensions.larastan)
+    );
 
     if (existing) {
       return {
         ...defaultExtension,
         ...existing,
+        enabled: existing.enabled || legacyEnabled,
       };
     }
 

@@ -11,6 +11,7 @@ import {
   setCommunityRulePackageEnabled,
 } from '../src/lib/communityRuleAdvisor';
 import { getComposerCommand, getComposerPackages, getExportGuidanceBlocks } from '../src/lib/export';
+import { resolveSelectedExtensions } from '../src/lib/phpstanSelections';
 import { renderNeon } from '../src/lib/neon';
 
 function createConfig(): PhpStanConfig {
@@ -152,6 +153,24 @@ test('dependency-based recommendation hints stay explicit', () => {
   assert.equal(dependencyScan?.hasStrictRules, true);
   assert.ok(dependencyScan?.suggestedCommunityPackageIds.includes('larastan-advisor'));
   assert.ok(dependencyScan?.alreadyInstalledCommunityPackageIds.includes('voku-rules-advisor'));
+});
+
+test('dependency scan ignores non-object JSON roots', () => {
+  assert.equal(analyzeComposerDependencies('null'), null);
+  assert.equal(analyzeComposerDependencies('[]'), null);
+  assert.equal(analyzeComposerDependencies('"composer.json"'), null);
+});
+
+test('legacy extension flags still enable mapped selections', () => {
+  const config = createConfig();
+  config.extensions.doctrine = true;
+  config.extensions.selectedExtensions = [
+    { id: 'doctrine', enabled: false, selectedIncludes: ['extension.neon'] },
+  ];
+
+  const selectedDoctrine = resolveSelectedExtensions(config.extensions).find((extension) => extension.id === 'doctrine');
+
+  assert.equal(selectedDoctrine?.enabled, true);
 });
 
 test('manual guidance is exported for packages without verified include paths', () => {
