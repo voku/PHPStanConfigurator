@@ -14,6 +14,68 @@ export interface StrictRules {
 
 export type InstallationStrategy = 'auto_installer' | 'manual_includes' | 'hybrid';
 
+export type RulePackageCategory =
+  | 'type-safety'
+  | 'security'
+  | 'architecture'
+  | 'framework'
+  | 'database'
+  | 'testing'
+  | 'complexity'
+  | 'migration'
+  | 'strictness';
+
+export interface CommunityRuleSummary {
+  ruleClass: string;
+  title: string;
+  problem: string;
+  value: string;
+  risk: string;
+}
+
+export interface CommunityRulePackage {
+  id: string;
+  packageName: string;
+  displayName: string;
+  category: RulePackageCategory;
+  ruleCount: number;
+  recommendedFor: string[];
+  avoidWhen: string[];
+  composerRequireDev: string;
+  includes: string[];
+  configurationHints: string[];
+  highlightedRules: CommunityRuleSummary[];
+  defaultRecommendation: 'off' | 'suggested' | 'recommended' | 'advanced';
+  linkedExtensionId?: string;
+}
+
+export interface SelectedCommunityRulePackage {
+  id: string;
+  enabled: boolean;
+}
+
+export interface DependencyScanResult {
+  packageNames: string[];
+  detectedExtensionIds: string[];
+  suggestedCommunityPackageIds: string[];
+  alreadyInstalledCommunityPackageIds: string[];
+  notes: string[];
+  hasStrictRules: boolean;
+  frameworks: {
+    laravel: boolean;
+    symfony: boolean;
+    doctrine: boolean;
+    phpunit: boolean;
+  };
+}
+
+export interface CommunityRuleRecommendation {
+  packageId: string;
+  recommendation: 'off' | 'suggested' | 'recommended' | 'advanced';
+  reasons: string[];
+  alreadyInstalled: boolean;
+}
+
 export interface VokuParameters {
   checkForAssignments: boolean;
   checkYodaConditions: boolean;
@@ -40,6 +102,7 @@ export interface Extensions {
   customIncludes: string[];
   installationStrategy?: InstallationStrategy;
   selectedExtensions?: SelectedExtension[];
+  communityPackages?: SelectedCommunityRulePackage[];
   vokuParameters?: VokuParameters;
   sidzParameters?: SidzParameters;
 }

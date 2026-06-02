@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { PhpStanConfig, SelectedExtension, InstallationStrategy, VokuParameters, SidzParameters } from '../types';
 import { OFFICIAL_DOC_EXTENSION_PACKAGES, getExtensionComposerPackage, getExtensionIncludeBasePath } from '../lib/phpstanExtensions';
+import { resolveSelectedExtensions } from '../lib/phpstanSelections';
 
 export interface PhpStanExtension {
   id: string;
@@ -350,28 +351,7 @@ export function PhpStanExtensionLibrary({
   const installationStrategy = config.extensions.installationStrategy || 'hybrid';
   
   // Resolve or initialize active selectedExtensions with fallback merging
-  const rawExtensions = config.extensions.selectedExtensions || [];
-  const defaultExList = [
-    { id: 'sidz-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-    { id: 'voku-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-    { id: 'strict-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-    { id: 'deprecation-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-    { id: 'doctrine', enabled: config.extensions.doctrine || false, selectedIncludes: ['extension.neon', 'rules.neon'] },
-    { id: 'symfony', enabled: config.extensions.symfony || false, selectedIncludes: ['extension.neon', 'rules.neon'] },
-    { id: 'larastan', enabled: config.extensions.larastan || false, selectedIncludes: ['extension.neon'] },
-    { id: 'phpunit', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
-    { id: 'beberlei-assert', enabled: false, selectedIncludes: ['extension.neon'] },
-    { id: 'webmozart-assert', enabled: false, selectedIncludes: ['extension.neon'] },
-    { id: 'mockery', enabled: false, selectedIncludes: ['extension.neon'] },
-    { id: 'psl', enabled: false, selectedIncludes: ['extension.neon'] },
-    { id: 'nette', enabled: false, selectedIncludes: ['extension.neon'] },
-    { id: 'dibi', enabled: false, selectedIncludes: ['extension.neon'] }
-  ];
-
-  const selectedExtensions = defaultExList.map(def => {
-    const existing = rawExtensions.find(e => e.id === def.id);
-    return existing ? { ...def, ...existing } : def;
-  });
+  const selectedExtensions = resolveSelectedExtensions(config.extensions);
 
   // Resolve or initialize Voku parameters
   const vokuParams: VokuParameters = config.extensions.vokuParameters || {

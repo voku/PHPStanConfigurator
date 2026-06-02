@@ -4,7 +4,10 @@
  */
 
 import { PhpStanConfig, StrictRules, Extensions, ImportedNeonPreservation, PreservedNeonBlock } from '../types';
+import { COMMUNITY_RULE_PACKAGES } from '../data/communityRulePackages';
 import { getExtensionIncludeBasePath } from './phpstanExtensions';
+import { getCommunityRuleIncludePaths } from './communityRuleAdvisor';
+import { getExportGuidanceCommentLines } from './export';
 
 /**
  * Renders a PhpStanConfig domain object into highly readable, correct phpstan.neon string.
@@ -19,6 +22,9 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
   lines.push('# Target: PHPStan 2.x');
   lines.push(`# Preset: ${presetName}`);
   lines.push('# This file intentionally avoids PHPStan 1.x-only configuration options.');
+  for (const commentLine of getExportGuidanceCommentLines(config)) {
+    lines.push(commentLine);
+  }
   lines.push('');
 
   // 1. Includes Section
@@ -58,6 +64,12 @@ export function renderNeon(config: PhpStanConfig, presetName: string = 'Modern W
 
   // Custom includes
   for (const inc of config.extensions.customIncludes) {
+    if (inc.trim() && !includes.includes(inc)) {
+      includes.push(inc.trim());
+    }
+  }
+
+  for (const inc of getCommunityRuleIncludePaths(config)) {
     if (inc.trim() && !includes.includes(inc)) {
       includes.push(inc.trim());
     }
@@ -623,6 +635,11 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
   let bleedingEdge = false;
   let hasBaseline = false;
   let baselinePath = '';
+  const selectedCommunityPackagesMap: Record<string, boolean> = Object.fromEntries(
+    COMMUNITY_RULE_PACKAGES
+      .filter((rulePackage) => rulePackage.linkedExtensionId === undefined)
+      .map((rulePackage) => [rulePackage.id, false])
+  );
 
   const selectedExtsMap: Record<string, { enabled: boolean; selectedIncludes: string[] }> = {
     'strict-rules': { enabled: false, selectedIncludes: [] },
@@ -671,6 +688,11 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
       selectedExtsMap['sidz-rules'].enabled = true;
       const filePart = inc.substring(inc.lastIndexOf('/') + 1);
       selectedExtsMap['sidz-rules'].selectedIncludes.push(filePart);
+    } else if (COMMUNITY_RULE_PACKAGES.some((rulePackage) => rulePackage.includes.includes(inc))) {
+      const matchedRulePackage = COMMUNITY_RULE_PACKAGES.find((rulePackage) => rulePackage.includes.includes(inc));
+      if (matchedRulePackage && matchedRulePackage.linkedExtensionId === undefined) {
+        selectedCommunityPackagesMap[matchedRulePackage.id] = true;
+      }
     } else if (inc.toLowerCase().includes('baseline')) {
       hasBaseline = true;
       baselinePath = inc;
@@ -689,6 +711,10 @@ export function parseNeon(neonString: string): Partial<PhpStanConfig> {
 
   extensions.installationStrategy = 'manual_includes';
   extensions.customIncludes = customIncArr;
+  extensions.communityPackages = Object.keys(selectedCommunityPackagesMap).map((id) => ({
+    id,
+    enabled: selectedCommunityPackagesMap[id],
+  }));
   extensions.vokuParameters ??= {
     checkForAssignments: false,
     checkYodaConditions: false,

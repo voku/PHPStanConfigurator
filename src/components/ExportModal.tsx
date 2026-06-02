@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Copy, Download, Check, X, FileCode, ShieldCheck, Terminal, ShieldAlert, Info } from 'lucide-react';
 import { PhpStanConfig } from '../types';
-import { getExtensionComposerPackage } from '../lib/phpstanExtensions';
+import { getComposerCommand, getExportGuidanceBlocks } from '../lib/export';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -20,40 +20,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
   const [copied, setCopied] = useState(false);
   const [copiedComposer, setCopiedComposer] = useState(false);
 
-  // Generate composer install command dynamically based on config
-  const getComposerCommand = (): string => {
-    if (!config) {
-      return 'composer require --dev phpstan/extension-installer';
-    }
-
-    const packages: string[] = [];
-    const strategy = config.extensions.installationStrategy || 'hybrid';
-    
-    // Auto installer or hybrid requires extension-installer
-    if (strategy === 'auto_installer' || strategy === 'hybrid') {
-      packages.push('phpstan/extension-installer');
-    }
-
-    // Capture enabled high-fidelity selectedExtensions
-    if (config.extensions.selectedExtensions) {
-      for (const ext of config.extensions.selectedExtensions) {
-        if (ext.enabled) {
-          packages.push(getExtensionComposerPackage(ext.id));
-        }
-      }
-    } else {
-      // Legacy fallback
-      if (config.extensions.symfony) packages.push('phpstan/phpstan-symfony');
-      if (config.extensions.doctrine) packages.push('phpstan/phpstan-doctrine');
-      if (config.extensions.larastan) packages.push('larastan/larastan');
-    }
-
-    if (packages.length === 0) {
-      return 'composer require --dev phpstan/phpstan';
-    }
-
-    return `composer require --dev ${packages.join(' ')}`;
-  };
+  const composerCommand = getComposerCommand(config);
+  const exportGuidanceBlocks = getExportGuidanceBlocks(config);
 
   // Compile active impacts/risks description
   const getExtensionImpacts = () => {
@@ -133,7 +101,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
 
   const handleCopyComposer = async () => {
     try {
-      await navigator.clipboard.writeText(getComposerCommand());
+      await navigator.clipboard.writeText(composerCommand);
       setCopiedComposer(true);
       setTimeout(() => setCopiedComposer(false), 2000);
     } catch (err) {
@@ -224,7 +192,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
                   </div>
                   <div className="flex items-center gap-2 bg-slate-900 text-slate-100 p-3 rounded-xl border border-slate-800 max-w-full font-mono text-xs shadow-inner overflow-x-auto justify-between group">
                     <span className="select-all block truncate mr-2 pr-2">
-                      {getComposerCommand()}
+                      {composerCommand}
                     </span>
                     <button
                       type="button"
@@ -291,6 +259,26 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
                             <p className="font-bold text-slate-900">{imp.title}</p>
                             <p className="text-[10px] text-slate-600 mt-0.5 leading-relaxed font-sans">{imp.desc}</p>
                           </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {exportGuidanceBlocks.length > 0 && (
+                  <div className="space-y-2 pt-1 border-t border-slate-200">
+                    <span className="text-[11px] font-mono uppercase tracking-wider text-slate-700 font-bold block">
+                      4. Manual guidance comments
+                    </span>
+                    <div className="space-y-2">
+                      {exportGuidanceBlocks.map((block) => (
+                        <div key={block.packageName} className="rounded-xl border border-slate-200 bg-white p-3">
+                          <p className="text-[10px] font-mono font-bold text-slate-800">{block.packageName}</p>
+                          <ul className="mt-2 space-y-1 list-disc pl-4 text-[10px] text-slate-600">
+                            {block.lines.map((line) => (
+                              <li key={line}>{line}</li>
+                            ))}
+                          </ul>
                         </div>
                       ))}
                     </div>
