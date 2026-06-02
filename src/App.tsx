@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { 
   Sliders, 
   Settings, 
@@ -35,6 +35,9 @@ import { NeonEditor } from './components/NeonEditor';
 import { PhpStanExtensionLibrary } from './components/PhpStanExtensionLibrary';
 import { CiPipelines } from './components/CiPipelines';
 import { ExportModal } from './components/ExportModal';
+import { RulesBeyondCoreAdvisor } from './components/RulesBeyondCoreAdvisor';
+import { analyzeComposerDependencies } from './lib/communityRuleAdvisor';
+import { resolveSelectedExtensions } from './lib/phpstanSelections';
 
 export default function App() {
   // General Configuration State
@@ -99,6 +102,7 @@ export default function App() {
       customIncludes: parsed.extensions?.customIncludes ?? fallback.extensions.customIncludes,
       installationStrategy: parsed.extensions?.installationStrategy ?? fallback.extensions.installationStrategy,
       selectedExtensions: parsed.extensions?.selectedExtensions ?? fallback.extensions.selectedExtensions,
+      communityPackages: parsed.extensions?.communityPackages ?? fallback.extensions.communityPackages,
       vokuParameters: parsed.extensions?.vokuParameters ?? fallback.extensions.vokuParameters,
       sidzParameters: parsed.extensions?.sidzParameters ?? fallback.extensions.sidzParameters,
     },
@@ -159,6 +163,8 @@ export default function App() {
 
     setValidationAlerts(alerts);
   };
+
+  const composerDependencyScan = useMemo(() => analyzeComposerDependencies(composerText), [composerText]);
   
   // Local Composer JSON Dependency Scanner
   const handleLocalScanComposer = () => {
@@ -166,14 +172,13 @@ export default function App() {
     setLocalComposerStatus({ message: '', type: null, detected: [] });
 
     try {
-      const obj = JSON.parse(composerText);
-      const req = { ...obj.require, ...obj['require-dev'] };
-      
-      if (!req) {
+      const dependencyScan = analyzeComposerDependencies(composerText);
+
+      if (!dependencyScan) {
         throw new Error('Could not read package properties from keys "require" or "require-dev".');
       }
 
-      const dependencyNames = Object.keys(req);
+      const dependencyNames = dependencyScan.packageNames;
       const composerSignals: Record<string, string[]> = {
         'sidz-rules': ['sidz/phpstan-rules'],
         'voku-rules': ['voku/phpstan-rules'],
@@ -191,22 +196,7 @@ export default function App() {
         dibi: ['phpstan/phpstan-dibi', 'dibi/dibi']
       };
 
-      const baseSelectedExtensions = config.extensions.selectedExtensions || [
-        { id: 'sidz-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-        { id: 'voku-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-        { id: 'strict-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-        { id: 'deprecation-rules', enabled: false, selectedIncludes: ['rules.neon'] },
-        { id: 'doctrine', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
-        { id: 'symfony', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
-        { id: 'larastan', enabled: false, selectedIncludes: ['extension.neon'] },
-        { id: 'phpunit', enabled: false, selectedIncludes: ['extension.neon', 'rules.neon'] },
-        { id: 'beberlei-assert', enabled: false, selectedIncludes: ['extension.neon'] },
-        { id: 'webmozart-assert', enabled: false, selectedIncludes: ['extension.neon'] },
-        { id: 'mockery', enabled: false, selectedIncludes: ['extension.neon'] },
-        { id: 'psl', enabled: false, selectedIncludes: ['extension.neon'] },
-        { id: 'nette', enabled: false, selectedIncludes: ['extension.neon'] },
-        { id: 'dibi', enabled: false, selectedIncludes: ['extension.neon'] }
-      ];
+      const baseSelectedExtensions = resolveSelectedExtensions(config.extensions);
 
       const detectedList: string[] = [];
       const updatedExtensions = baseSelectedExtensions.map(ext => {
@@ -219,9 +209,9 @@ export default function App() {
       });
 
       setConfig(prev => {
-        const hasSymfony = dependencyNames.some(k => k.includes('symfony/'));
-        const hasDoctrine = dependencyNames.some(k => k.includes('doctrine/'));
-        const hasLarastan = dependencyNames.some(k => k.includes('laravel/') || k.includes('larastan/larastan') || k.includes('nunomaduro/larastan'));
+        const hasSymfony = dependencyScan.frameworks.symfony;
+        const hasDoctrine = dependencyScan.frameworks.doctrine;
+        const hasLarastan = dependencyScan.frameworks.laravel;
         
         return {
           ...prev,
@@ -1172,6 +1162,14 @@ export default function App() {
               onChangeConfig={setConfig}
               onAddToast={showToast}
               onHoverRule={setHoveredRule}
+            />
+
+            <RulesBeyondCoreAdvisor
+              config={config}
+              activePresetId={activePresetId}
+              dependencyScan={composerDependencyScan}
+              onChangeConfig={setConfig}
+              onAddToast={showToast}
             />
 
             {/* Folder 4: Baselines and Debt mitigation */}
