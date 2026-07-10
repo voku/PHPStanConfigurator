@@ -17,7 +17,7 @@ export interface PhpStanReferenceEntry {
 export const PHPSTAN_CONFIG_REFERENCE_META = {
   ref: '2.2.x',
   sourceUrl: 'https://raw.githubusercontent.com/phpstan/phpstan/2.2.x/website/src/config-reference.md',
-  sourceHash: '063c97f35607c24d0d62067c5bf54f9c21916b2ca69336435ba37fe993bf6fb0',
+  sourceHash: 'f12c05256556981b097bc4d87eea26bb0c28a8cba4dcd591ef02acbb5cfb1bed',
 } as const;
 
 export const PHPSTAN_CONFIG_REFERENCE = [
@@ -33,6 +33,12 @@ export const PHPSTAN_CONFIG_REFERENCE = [
     "summary": "See PHPStan config reference section \"Bootstrap\"."
   },
   {
+    "key": "cache.memberCacheKeysMax",
+    "section": "Caching",
+    "summary": "Maximum number of classes whose reflected members (methods and properties, both native and including annotations) are kept in an in-memory LRU cache. When the limit is exceeded, the members of the least-recently-used class are evicted. Set it to 0 for an unlimited cache, which uses more memory on large codebases.",
+    "defaultValue": "2048"
+  },
+  {
     "key": "cache.nameScopeMapMemoryCacheCountMax",
     "section": "Caching",
     "summary": "Maximum number of file name scope maps (namespace and import context) cached in memory. Used during PHPDoc resolution to look up the correct namespace and use statement context.",
@@ -43,6 +49,24 @@ export const PHPSTAN_CONFIG_REFERENCE = [
     "section": "Caching",
     "summary": "Maximum number of parsed PHP files cached in memory by the parser. Increasing this value uses more memory but can speed up analysis by avoiding re-parsing frequently accessed files.",
     "defaultValue": "256"
+  },
+  {
+    "key": "cache.nodesByStringSourceBytesMax",
+    "section": "Caching",
+    "summary": "A second cap on the in-memory parser cache, working alongside cache.nodesByStringCountMax. It limits the total size (in bytes) of the source code whose parsed ASTs are kept in memory. Because a parsed AST takes up roughly 50–60× more memory than its source code, this byte-based cap prevents a few large files from pinning hundreds of megabytes in each worker process. When the limit is exceeded, the least-recently-used entries are evicted. Set it to 0 to disable the byte-based cap and rely solely on the entry-count limit.",
+    "defaultValue": "4194304"
+  },
+  {
+    "key": "cache.phpStormStubsNodesCountMax",
+    "section": "Caching",
+    "summary": "Maximum number of parsed nodes from the bundled JetBrains phpstorm-stubs kept in memory. These stubs provide the signatures of built-in PHP functions, classes, and constants. Increasing this value uses more memory but can avoid re-parsing stub files. Set it to 0 for an unlimited cache.",
+    "defaultValue": "128"
+  },
+  {
+    "key": "cache.resolvedLocalTypeAliasesCountMax",
+    "section": "Caching",
+    "summary": "Maximum number of resolved local type aliases (@phpstan-type aliases defined in class PHPDocs) kept in an in-memory LRU cache. Because a resolved alias type transitively pins the class reflections it references, the least-recently-used entry is evicted once this limit is exceeded to keep memory usage in check. Set it to 0 for an unlimited cache.",
+    "defaultValue": "2048"
   },
   {
     "key": "cache.resolvedPhpDocBlockCacheCountMax",

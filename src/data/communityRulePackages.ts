@@ -4,6 +4,22 @@
  */
 
 import { CommunityRulePackage } from '../types';
+import { EXTENSIONS_LIBRARY_BY_ID } from './phpstanExtensionsLibrary';
+import { getExtensionIncludeBasePath } from '../lib/phpstanExtensions';
+
+/**
+ * For packages also toggled in the Extension Library, derive the composer
+ * package name and include paths from that single source of truth instead of
+ * hand-duplicating them here, so the two pickers can't drift out of sync.
+ */
+function linkedPackageName(extensionId: string): string {
+  return EXTENSIONS_LIBRARY_BY_ID[extensionId].composerPackage;
+}
+
+function linkedIncludes(extensionId: string): string[] {
+  const extension = EXTENSIONS_LIBRARY_BY_ID[extensionId];
+  return extension.includes.map((file) => `${getExtensionIncludeBasePath(extensionId)}/${file}`);
+}
 
 export const COMMUNITY_RULE_PACKAGES: CommunityRulePackage[] = [
   {
@@ -125,14 +141,14 @@ export const COMMUNITY_RULE_PACKAGES: CommunityRulePackage[] = [
   },
   {
     id: 'voku-rules-advisor',
-    packageName: 'voku/phpstan-rules',
+    packageName: linkedPackageName('voku-rules'),
     displayName: 'voku Rules',
     category: 'type-safety',
     ruleCount: 13,
     recommendedFor: ['legacy modernization', 'condition-heavy code', 'null-safety cleanups'],
     avoidWhen: ['projects already overwhelmed by strict-rules findings', 'teams that only want core-level checks'],
-    composerRequireDev: 'composer require --dev voku/phpstan-rules',
-    includes: ['vendor/voku/phpstan-rules/rules.neon'],
+    composerRequireDev: `composer require --dev ${linkedPackageName('voku-rules')}`,
+    includes: linkedIncludes('voku-rules'),
     configurationHints: [
       'Optional voku parameter tuning is available in the extension library section after enabling the package.'
     ],
@@ -203,14 +219,14 @@ export const COMMUNITY_RULE_PACKAGES: CommunityRulePackage[] = [
   },
   {
     id: 'larastan-advisor',
-    packageName: 'larastan/larastan',
+    packageName: linkedPackageName('larastan'),
     displayName: 'Larastan',
     category: 'framework',
     ruleCount: 18,
     recommendedFor: ['Laravel projects', 'Eloquent-heavy apps', 'teams using Artisan/config magic'],
     avoidWhen: ['non-Laravel codebases', 'framework-agnostic libraries'],
-    composerRequireDev: 'composer require --dev larastan/larastan',
-    includes: ['vendor/larastan/larastan/extension.neon'],
+    composerRequireDev: `composer require --dev ${linkedPackageName('larastan')}`,
+    includes: linkedIncludes('larastan'),
     configurationHints: [
       'Recommend only for Laravel codebases. This advisor reuses the existing Larastan extension toggle.'
     ],

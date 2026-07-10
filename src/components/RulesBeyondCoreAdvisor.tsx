@@ -4,9 +4,10 @@
  */
 
 import React from 'react';
-import { AlertTriangle, CheckCircle2, Layers, PackageCheck, ShieldAlert, Sparkles } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Layers, Link2, PackageCheck, ShieldAlert, Sparkles } from 'lucide-react';
 import { PhpStanConfig, DependencyScanResult } from '../types';
 import { groupCommunityRulePackages, setCommunityRulePackageEnabled } from '../lib/communityRuleAdvisor';
+import { EXTENSIONS_LIBRARY_BY_ID } from '../data/phpstanExtensionsLibrary';
 
 interface RulesBeyondCoreAdvisorProps {
   config: PhpStanConfig;
@@ -114,6 +115,12 @@ export function RulesBeyondCoreAdvisor({
                         )}
                       </div>
                       <p className="text-[10px] text-slate-500 font-mono">{rulePackage.packageName} · {rulePackage.ruleCount} rules</p>
+                      {rulePackage.linkedExtensionId && EXTENSIONS_LIBRARY_BY_ID[rulePackage.linkedExtensionId] && (
+                        <p className="text-[9px] text-indigo-600 flex items-center gap-1">
+                          <Link2 className="w-3 h-3" />
+                          Same toggle as &quot;{EXTENSIONS_LIBRARY_BY_ID[rulePackage.linkedExtensionId].name}&quot; in the Extension Library above — enabling either one enables both.
+                        </p>
+                      )}
                     </div>
 
                     <button
