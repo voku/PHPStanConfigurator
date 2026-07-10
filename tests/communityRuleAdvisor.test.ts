@@ -13,6 +13,8 @@ import {
 import { getComposerCommand, getComposerPackages, getExportGuidanceBlocks } from '../src/lib/export';
 import { resolveSelectedExtensions } from '../src/lib/phpstanSelections';
 import { renderNeon } from '../src/lib/neon';
+import { COMMUNITY_RULE_PACKAGES } from '../src/data/communityRulePackages';
+import { EXTENSIONS_LIBRARY_BY_ID } from '../src/data/phpstanExtensionsLibrary';
 
 function createConfig(): PhpStanConfig {
   return {
@@ -171,6 +173,38 @@ test('legacy extension flags still enable mapped selections', () => {
   const selectedDoctrine = resolveSelectedExtensions(config.extensions).find((extension) => extension.id === 'doctrine');
 
   assert.equal(selectedDoctrine?.enabled, true);
+});
+
+test('community packages linked to an Extension Library entry cannot drift out of sync', () => {
+  const linkedPackages = COMMUNITY_RULE_PACKAGES.filter((rulePackage) => rulePackage.linkedExtensionId);
+
+  assert.ok(linkedPackages.length > 0, 'expected at least one linked community package to guard');
+
+  for (const rulePackage of linkedPackages) {
+    const extension = EXTENSIONS_LIBRARY_BY_ID[rulePackage.linkedExtensionId as string];
+
+    assert.ok(extension, `linkedExtensionId "${rulePackage.linkedExtensionId}" must exist in EXTENSIONS_LIBRARY`);
+    assert.equal(
+      rulePackage.packageName,
+      extension.composerPackage,
+      `${rulePackage.id} composer package must match its linked Extension Library entry`
+    );
+    assert.equal(
+      rulePackage.composerRequireDev,
+      `composer require --dev ${extension.composerPackage}`,
+      `${rulePackage.id} install command must match its linked Extension Library entry`
+    );
+
+    const expectedIncludes = extension.includes.map((file) => {
+      const basePath = `vendor/${extension.composerPackage}`;
+      return `${basePath}/${file}`;
+    });
+    assert.deepEqual(
+      rulePackage.includes,
+      expectedIncludes,
+      `${rulePackage.id} include paths must match its linked Extension Library entry`
+    );
+  }
 });
 
 test('manual guidance is exported for packages without verified include paths', () => {
