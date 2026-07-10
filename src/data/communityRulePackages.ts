@@ -12,12 +12,20 @@ import { getExtensionIncludeBasePath } from '../lib/phpstanExtensions';
  * package name and include paths from that single source of truth instead of
  * hand-duplicating them here, so the two pickers can't drift out of sync.
  */
+function requireLinkedExtension(extensionId: string) {
+  const extension = EXTENSIONS_LIBRARY_BY_ID[extensionId];
+  if (!extension) {
+    throw new Error(`Unknown linkedExtensionId "${extensionId}": no matching entry in EXTENSIONS_LIBRARY.`);
+  }
+  return extension;
+}
+
 function linkedPackageName(extensionId: string): string {
-  return EXTENSIONS_LIBRARY_BY_ID[extensionId].composerPackage;
+  return requireLinkedExtension(extensionId).composerPackage;
 }
 
 function linkedIncludes(extensionId: string): string[] {
-  const extension = EXTENSIONS_LIBRARY_BY_ID[extensionId];
+  const extension = requireLinkedExtension(extensionId);
   return extension.includes.map((file) => `${getExtensionIncludeBasePath(extensionId)}/${file}`);
 }
 
