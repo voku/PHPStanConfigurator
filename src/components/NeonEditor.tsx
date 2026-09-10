@@ -113,32 +113,35 @@ export function NeonEditor({
           )}
         </div>
 
-        <div className="flex items-center gap-1.5 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setImportOpen(!importOpen)}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm"
+            className="h-8 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
             id="import-neon-btn"
+            title="Import configuration"
           >
             <Upload className="w-3.5 h-3.5 text-slate-500 shrink-0" />
-            <span className="whitespace-nowrap">Import</span>
+            <span>Import</span>
           </button>
           
           <button
             onClick={handleCopy}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm"
+            className="h-8 px-3 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-medium text-slate-700 rounded-lg transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
             id="copy-neon-btn"
+            title="Copy NEON code"
           >
-            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500 shrink-0" /> : <Copy className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
-            <span className="whitespace-nowrap">{copied ? 'Copied' : 'Copy'}</span>
+            {copied ? <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" /> : <Copy className="w-3.5 h-3.5 text-slate-500 shrink-0" />}
+            <span>{copied ? 'Copied' : 'Copy'}</span>
           </button>
 
           <button
             onClick={handleDownload}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white shadow-sm shadow-indigo-200 rounded-lg transition-colors cursor-pointer"
+            className="h-8 px-3 bg-indigo-600 hover:bg-indigo-500 text-xs font-medium text-white shadow-sm rounded-lg transition-colors cursor-pointer flex items-center gap-1.5"
             id="download-neon-btn"
+            title="Download phpstan.neon.dist"
           >
             <Download className="w-3.5 h-3.5 shrink-0" />
-            <span className="whitespace-nowrap">Download</span>
+            <span>Download</span>
           </button>
         </div>
       </div>
@@ -149,11 +152,11 @@ export function NeonEditor({
           <div className="absolute inset-0 z-10 bg-white p-6 flex flex-col space-y-4">
             <div className="flex items-center justify-between pb-2 border-b border-slate-200">
               <h4 className="text-xs font-bold text-slate-800 font-mono flex items-center gap-2">
-                <Upload className="w-4 h-4 text-indigo-600" /> IMPORT EXISTING PHPSTAN.NEON.DIST
+                <Upload className="w-4 h-4 text-indigo-600" /> Import phpstan.neon.dist
               </h4>
               <button 
                 onClick={() => { setImportOpen(false); setImportError(null); }}
-                className="text-xs text-slate-500 hover:text-slate-800 font-medium"
+                className="h-7 px-2.5 text-xs text-slate-500 hover:text-slate-800 font-medium rounded hover:bg-slate-100 transition-colors cursor-pointer"
               >
                 Cancel
               </button>
@@ -175,12 +178,15 @@ export function NeonEditor({
                 <span>{importError}</span>
               </div>
             )}
-            <button
-              onClick={handleImportSubmit}
-              className="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 font-medium text-xs text-white rounded-xl transition-all cursor-pointer shadow"
-            >
-              Parse and Apply Configuration
-            </button>
+            <div className="flex justify-end pt-1">
+              <button
+                onClick={handleImportSubmit}
+                className="h-9 px-4 bg-indigo-600 hover:bg-indigo-500 font-semibold text-xs text-white rounded-lg transition-colors cursor-pointer shadow-sm flex items-center gap-1.5"
+              >
+                <Upload className="w-3.5 h-3.5" />
+                <span>Import</span>
+              </button>
+            </div>
           </div>
         ) : null}
 

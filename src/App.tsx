@@ -19,12 +19,16 @@ import {
   Sparkles, 
   Terminal, 
   ChevronRight, 
+  ChevronDown,
+  SlidersHorizontal,
   Layers,
   ArrowRight,
   RefreshCw,
   Github,
   Download,
-  FileCode
+  Upload,
+  FileCode,
+  ExternalLink
 } from 'lucide-react';
 
 import { PhpStanConfig, Preset, Extensions, BaselineConfig } from './types';
@@ -35,7 +39,6 @@ import { NeonEditor } from './components/NeonEditor';
 import { PhpStanExtensionLibrary } from './components/PhpStanExtensionLibrary';
 import { CiPipelines } from './components/CiPipelines';
 import { ExportModal } from './components/ExportModal';
-import { RulesBeyondCoreAdvisor } from './components/RulesBeyondCoreAdvisor';
 import { analyzeComposerDependencies } from './lib/communityRuleAdvisor';
 import { resolveSelectedExtensions } from './lib/phpstanSelections';
 
@@ -51,6 +54,10 @@ export default function App() {
     type: null,
     detected: []
   });
+
+  // Collapsible optional sections
+  const [isAdvancedPathsOpen, setIsAdvancedPathsOpen] = useState(false);
+  const [isAdvancedStrictnessOpen, setIsAdvancedStrictnessOpen] = useState(false);
   const [hoveredRule, setHoveredRule] = useState<string | null>(null);
   
   // Cleaned filters
@@ -388,43 +395,43 @@ export default function App() {
     <div className="min-h-screen text-slate-800 font-sans flex flex-col selection:bg-indigo-100 selection:text-indigo-900 bg-[#f8fafc]">
       
       {/* Header element */}
-      <header className="bg-slate-900 text-white border-b border-slate-800 px-6 py-4 sticky top-0 z-40 shadow-md">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2.5 bg-indigo-600/20 border border-indigo-505/30 rounded-xl">
-              <Layers className="w-6 h-6 text-indigo-400" />
+      <header className="bg-slate-900 text-white border-b border-slate-800 px-4 sm:px-6 py-3.5 sticky top-0 z-40 shadow-md">
+        <div className="max-w-7xl mx-auto flex flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+            <div className="p-2 sm:p-2.5 bg-indigo-600/20 border border-indigo-500/30 rounded-xl shrink-0">
+              <Layers className="w-5 h-5 sm:w-6 sm:h-6 text-indigo-400" />
             </div>
-            <div>
+            <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <h1 className="text-lg font-bold font-mono tracking-tight text-white flex items-center gap-1.5">
-                  PHPStan Configurator <span className="text-xs bg-indigo-650 text-indigo-50 px-1.5 py-0.5 rounded uppercase font-mono tracking-wider font-extrabold scale-90">v2.0</span>
+                <h1 className="text-base sm:text-lg font-bold font-mono tracking-tight text-white flex items-center gap-1.5 truncate">
+                  PHPStan Configurator <span className="text-[10px] sm:text-xs bg-indigo-600 text-indigo-50 px-1.5 py-0.5 rounded uppercase font-mono tracking-wider font-extrabold scale-90">v2.0</span>
                 </h1>
               </div>
-              <p className="text-xs text-slate-400">
-                Created by <a href="https://github.com/voku" target="_blank" rel="noreferrer" className="text-indigo-455 hover:underline font-semibold hover:text-indigo-305">Lars Moelleken (voku)</a>.
+              <p className="text-xs text-slate-400 truncate hidden sm:block">
+                Created by <a href="https://github.com/voku" target="_blank" rel="noreferrer" className="text-indigo-400 hover:underline font-semibold hover:text-indigo-300">Lars Moelleken (voku)</a>.
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-          <button
-            onClick={() => setIsExportModalOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-1.5 bg-indigo-650 hover:bg-indigo-500 text-xs font-bold text-white rounded-lg shadow-lg shadow-indigo-950/20 hover:shadow-indigo-700/35 transition-all cursor-pointer animate-fadeIn"
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <button
+              onClick={() => setIsExportModalOpen(true)}
+              className="h-8.5 px-3 sm:px-3.5 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white rounded-lg shadow-md transition-colors cursor-pointer flex items-center gap-1.5"
               id="header-export-btn"
               title="Export Config (Cmd+E / Ctrl+E)"
             >
               <Download className="w-3.5 h-3.5" />
-              <span>Export Config</span>
-              <kbd className="hidden lg:inline-block text-[9px] bg-indigo-755 text-indigo-100 font-mono px-1 py-0.5 rounded leading-none scale-95 shadow-sm font-bold ml-1">
+              <span>Export</span>
+              <kbd className="hidden sm:inline-block text-[9px] bg-indigo-700 text-indigo-100 font-mono px-1 py-0.5 rounded leading-none scale-95 shadow-sm font-bold ml-1">
                 ⌘E
               </kbd>
             </button>
             <a 
-              href="https://github.com/voku" 
+              href="https://github.com/voku/PHPStanConfigurator" 
               target="_blank" 
               rel="noreferrer"
-              className="p-1.5 bg-slate-800 hover:bg-slate-750 border border-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
-              title="Lars on GitHub"
+              className="h-8.5 w-8.5 flex items-center justify-center bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+              title="PHPStan Configurator GitHub Repository"
             >
               <Github className="w-4 h-4" />
             </a>
@@ -432,43 +439,89 @@ export default function App() {
         </div>
       </header>
 
+      {/* Official Documentation & Reference Bar */}
+      <nav aria-label="Official Documentation Links" className="bg-slate-950 text-slate-300 border-b border-slate-800 px-4 sm:px-6 py-2 text-xs">
+        <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 overflow-x-auto">
+          <div className="flex items-center gap-1.5 shrink-0 text-slate-400 font-mono text-[11px]">
+            <BookOpen className="w-3.5 h-3.5 text-indigo-400" />
+            <span className="font-semibold text-slate-200">Official References:</span>
+          </div>
+          <div className="flex items-center gap-3 shrink-0 text-[11px] font-medium">
+            <a href="https://phpstan.org/config-reference" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+              <span>Config Reference</span>
+              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            </a>
+            <span className="text-slate-700">|</span>
+            <a href="https://phpstan.org/user-guide/rule-levels" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+              <span>Rule Levels (0–10)</span>
+              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            </a>
+            <span className="text-slate-700">|</span>
+            <a href="https://phpstan.org/user-guide/extension-library" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+              <span>Extension Library</span>
+              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            </a>
+            <span className="text-slate-700">|</span>
+            <a href="https://phpstan.org/user-guide/baseline" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+              <span>Baseline Guide</span>
+              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            </a>
+            <span className="text-slate-700">|</span>
+            <a href="https://phpstan.org/blog/what-is-bleeding-edge" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+              <span>Bleeding Edge</span>
+              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            </a>
+            <span className="text-slate-700">|</span>
+            <a href="https://phpstan.org/try" target="_blank" rel="noreferrer" className="text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+              <span>Try Playground</span>
+              <ExternalLink className="w-2.5 h-2.5 text-slate-400" />
+            </a>
+            <span className="text-slate-700">|</span>
+            <a href="https://github.com/voku/PHPStanConfigurator" target="_blank" rel="noreferrer" className="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 transition-colors font-semibold">
+              <Github className="w-3 h-3" />
+              <span>Configurator Repo</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+
       {/* Main workspace section */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 relative">
+      <main className="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
         
         {/* Left Interactive Parameters Form Sheet */}
-        <div className="lg:col-span-7 space-y-6 order-2 lg:order-1 min-w-0">
+        <div className="lg:col-span-7 space-y-6 order-1 min-w-0">
           {/* Step 1: Configuration Source & Blueprint Hub */}
           <section id="project-start-profile-section" className="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm space-y-6">
             <div>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 text-[10px] bg-slate-105 text-slate-600 border rounded-md font-mono font-bold">STEP 1</span>
+                <span className="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 border border-slate-200 rounded-md font-mono font-bold">STEP 1</span>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight font-sans">
                   Choose Preset Blueprint
                 </h2>
               </div>
-              <p className="text-xs text-slate-505 leading-normal mt-1">
+              <p className="text-xs text-slate-500 leading-normal mt-1">
                 Start with a preset blueprint first, then optionally refine it by importing an existing neon codebase file or scanning composer dependencies.
               </p>
             </div>
 
             <div className="space-y-4">
               <div className="space-y-4 animate-fadeIn">
-                <div className="flex flex-wrap gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200/50">
+                <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200">
                   {[
-                    { id: 'All', label: '📦 All Blueprints' },
-                    { id: 'General', label: '✨ Generic MVC' },
-                    { id: 'Performance Focused', label: '⚡ Frameworks' },
-                    { id: 'Security Focused', label: '🛡️ Packages' },
-                    { id: 'Legacy Compatibility', label: '🦖 Legacy' }
+                    { id: 'All', label: 'All Blueprints' },
+                    { id: 'General', label: 'Generic MVC' },
+                    { id: 'Performance Focused', label: 'Frameworks' },
+                    { id: 'Security Focused', label: 'Packages' },
+                    { id: 'Legacy Compatibility', label: 'Legacy' }
                   ].map((tab) => (
                     <button
                       key={tab.id}
                       type="button"
                       onClick={() => setSelectedFilterCategory(tab.id)}
-                      className={`py-1.5 px-1 text-center font-bold text-[9px] md:text-[10px] rounded-lg transition-all cursor-pointer flex-1 ${
+                      className={`h-7 px-2.5 text-center font-medium text-xs rounded-lg transition-colors cursor-pointer ${
                         selectedFilterCategory === tab.id
                           ? 'bg-indigo-600 text-white shadow-sm font-semibold'
-                          : 'text-slate-650 hover:bg-slate-200 hover:text-slate-900'
+                          : 'text-slate-600 hover:bg-slate-200 hover:text-slate-900'
                       }`}
                     >
                       {tab.label}
@@ -476,7 +529,7 @@ export default function App() {
                   ))}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[340px] overflow-y-auto pr-1">
                   {PRESETS
                     .filter(p => selectedFilterCategory === 'All' || p.category === selectedFilterCategory)
                     .map((preset) => {
@@ -495,14 +548,14 @@ export default function App() {
                             <div className="flex items-start justify-between gap-1.5">
                               <div className="space-y-0.5">
                                 <span className="font-extrabold text-[12px] text-slate-800 block leading-tight">{preset.name}</span>
-                                <span className="text-[8px] font-mono text-indigo-650 font-bold uppercase tracking-wider">{preset.target}</span>
+                                <span className="text-[8px] font-mono text-indigo-600 font-bold uppercase tracking-wider">{preset.target}</span>
                               </div>
                               <div className="flex flex-col items-end gap-1">
                                 <span className={`text-[8px] border px-1.5 py-0.5 rounded uppercase font-mono tracking-wider font-extrabold ${
                                   preset.strictness === 'High' 
                                     ? 'bg-rose-50 text-rose-700 border-rose-200' 
                                     : preset.strictness === 'Medium' 
-                                      ? 'bg-indigo-50 text-indigo-705 border-indigo-200'
+                                      ? 'bg-indigo-50 text-indigo-700 border-indigo-200'
                                       : 'bg-amber-50 text-amber-700 border-amber-200'
                                 }`}>
                                   {preset.strictness} Code
@@ -522,11 +575,11 @@ export default function App() {
 
                           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[8.5px] font-mono text-slate-400">
                             <div className="flex items-center gap-2">
-                              <span>Lvl: <strong className="text-slate-705">{preset.config.level}</strong></span>
+                              <span>Lvl: <strong className="text-slate-700">{preset.config.level}</strong></span>
                               <span className="text-slate-300">|</span>
-                              <span>PHP: <strong className="text-slate-705">{(parseFloat(preset.config.phpVersion) / 10000).toFixed(1)}</strong></span>
+                              <span>PHP: <strong className="text-slate-700">{(parseFloat(preset.config.phpVersion) / 10000).toFixed(1)}</strong></span>
                               <span className="text-slate-300">|</span>
-                              <span>Paths: <strong className="text-slate-705">{preset.config.paths.join(', ')}</strong></span>
+                              <span>Paths: <strong className="text-slate-700">{preset.config.paths.join(', ')}</strong></span>
                             </div>
 
                             <div className="flex gap-1">
@@ -534,7 +587,7 @@ export default function App() {
                                 title="Symfony Extension"
                                 className={`w-3.5 h-3.5 rounded flex items-center justify-center font-bold text-[7px] border font-sans select-none ${
                                   preset.config.extensions.symfony
-                                    ? 'bg-indigo-105 text-indigo-700 border-indigo-300'
+                                    ? 'bg-indigo-100 text-indigo-700 border-indigo-300'
                                     : 'bg-slate-50 text-slate-300 border-slate-200'
                                 }`}
                               >
@@ -568,19 +621,19 @@ export default function App() {
                 </div>
 
                 {activePresetId && (
-                  <div className="p-3 bg-indigo-50 border border-indigo-100/50 rounded-xl text-[10px] text-indigo-950 flex items-center justify-between animate-fadeIn">
-                    <div className="flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-indigo-600 scale-95 shrink-0 animate-pulse" />
+                  <div className="p-3 bg-indigo-50 border border-indigo-100/50 rounded-xl text-xs text-indigo-950 flex items-center justify-between animate-fadeIn">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
                       <p>
-                        Active Project Preset: <strong className="text-indigo-900">"{PRESETS.find(p => p.id === activePresetId)?.name}"</strong> controls applied!
+                        Active Preset: <strong className="text-indigo-900">"{PRESETS.find(p => p.id === activePresetId)?.name}"</strong> applied.
                       </p>
                     </div>
                     <button
                       type="button"
                       onClick={handleResetToPresetPreset}
-                      className="text-[9px] font-bold text-indigo-600 hover:text-indigo-850 bg-white border border-indigo-200/50 rounded px-2 py-0.5 shadow-sm transition-colors cursor-pointer"
+                      className="h-7 px-2.5 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-white border border-indigo-200 rounded-lg shadow-sm transition-colors cursor-pointer"
                     >
-                      Reset Applied Options
+                      Reset
                     </button>
                   </div>
                 )}
@@ -596,7 +649,7 @@ export default function App() {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 px-1 bg-slate-100 p-1.5 rounded-xl border border-slate-200/50">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 p-1.5 bg-slate-100 rounded-xl border border-slate-200">
                   {[
                     { id: 'composer', label: 'Scan composer.json', icon: <Terminal className="w-3.5 h-3.5" /> },
                     { id: 'import', label: 'Import .neon.dist', icon: <FileCode className="w-3.5 h-3.5" /> }
@@ -604,11 +657,11 @@ export default function App() {
                     <button
                       key={t.id}
                       type="button"
-                      onClick={() => setStartMode(t.id)}
-                      className={`min-w-0 py-2 px-2 rounded-lg text-center font-bold text-[10px] sm:text-xs cursor-pointer transition-all flex items-center justify-center gap-1.5 ${
+                      onClick={() => setStartMode(prev => prev === t.id ? null : t.id)}
+                      className={`h-8 px-3 rounded-lg text-center font-medium text-xs cursor-pointer transition-colors flex items-center justify-center gap-1.5 ${
                         startMode === t.id
-                          ? 'bg-indigo-600 text-white shadow-md font-semibold'
-                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200'
+                          ? 'bg-indigo-600 text-white shadow-sm font-semibold'
+                          : 'text-slate-700 hover:text-slate-900 hover:bg-slate-200'
                       }`}
                     >
                       {t.icon}
@@ -620,9 +673,9 @@ export default function App() {
 
               {/* Start Mode Content */}
               {startMode === 'composer' && (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4.5 space-y-3 animate-fadeIn">
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Paste your local <code className="bg-white px-1.5 border rounded text-[10px] font-mono">composer.json</code> mapping to scan active framework dependencies. Detected packages automatically toggle high-fidelity recommended extension settings!
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 animate-fadeIn">
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Paste your local <code className="bg-white px-1.5 py-0.5 border rounded text-xs font-mono">composer.json</code> mapping to scan active framework dependencies.
                   </p>
                   <textarea
                     value={composerText}
@@ -632,29 +685,29 @@ export default function App() {
                     id="composer-json-textarea-s1"
                     className="w-full bg-white border border-slate-300 rounded-lg p-2.5 font-mono text-xs focus:ring-1 focus:ring-indigo-500 focus:outline-none focus:border-indigo-500"
                   />
-                  <div className="flex items-center justify-between">
+                  <div className="flex items-center justify-between gap-2">
                     <button
                       type="button"
                       onClick={() => {
                         setComposerText(`{\n  "require": {\n    "symfony/framework-bundle": "^6.4",\n    "doctrine/orm": "^3.0",\n    "laravel/framework": "^10.0",\n    "phpunit/phpunit": "^10.4",\n    "voku/portable-utf8": "^6.1",\n    "sidz/phpstan-rules": "^1.0"\n  }\n}`);
                       }}
-                      className="text-[10px] font-semibold text-slate-600 hover:text-indigo-600 bg-white border px-2.5 py-1 rounded-md cursor-pointer transition-colors shadow-sm"
+                      className="h-8 px-3 text-xs font-medium text-slate-700 hover:text-indigo-600 bg-white border border-slate-200 rounded-lg shadow-sm transition-colors cursor-pointer"
                     >
-                      Load mock composer.json
+                      Load example
                     </button>
                     <button
                       type="button"
                       disabled={!composerText.trim()}
                       onClick={handleLocalScanComposer}
-                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-[11px] font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1 shrink-0 shadow-sm"
+                      className="h-8 px-3.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1.5 shrink-0"
                     >
-                      <span>Scan Dependencies</span>
+                      <span>Scan</span>
                       <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
                   {localComposerStatus.type === 'success' && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-950 text-[11px] space-y-1.5 animate-fadeIn">
+                    <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg text-emerald-950 text-xs space-y-1.5 animate-fadeIn">
                       <div className="flex items-center gap-1.5">
                         <span className="text-emerald-700 font-bold shrink-0">✓</span>
                         <strong>Detected Companion Packages:</strong>
@@ -668,14 +721,14 @@ export default function App() {
                             </div>
                           ))
                         ) : (
-                          <p className="text-[10px] text-slate-500 italic">No recognized extension components found. Try loading the mock list!</p>
+                          <p className="text-xs text-slate-500 italic">No recognized extension components found.</p>
                         )}
                       </div>
                     </div>
                   )}
 
                   {localComposerStatus.type === 'error' && (
-                    <div className="p-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-800 text-[11px] flex gap-2 font-mono animate-fadeIn">
+                    <div className="p-3 bg-rose-50 border border-rose-300 rounded-lg text-rose-800 text-xs flex gap-2 font-mono animate-fadeIn">
                       <span className="text-rose-600 shrink-0">⚠</span>
                       <p>{localComposerStatus.message}</p>
                     </div>
@@ -684,9 +737,9 @@ export default function App() {
               )}
 
               {startMode === 'import' && (
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4.5 space-y-3 animate-fadeIn">
-                  <p className="text-[11px] text-slate-600 leading-relaxed">
-                    Paste an existing <code className="bg-white px-1.5 border rounded text-[10px] font-mono">phpstan.neon.dist</code> config text block. The parser will seamlessly auto-populate configuration strictness and settings:
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3 animate-fadeIn">
+                  <p className="text-xs text-slate-600 leading-relaxed">
+                    Paste an existing <code className="bg-white px-1.5 py-0.5 border rounded text-xs font-mono">phpstan.neon.dist</code> config text block to auto-populate settings:
                   </p>
                   <textarea
                     value={importText}
@@ -709,9 +762,10 @@ export default function App() {
                           showToast(`Failed to parse config: ${err.message}`, 'info');
                         }
                       }}
-                      className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-[11px] font-bold rounded-lg transition-all cursor-pointer shadow-sm animate-fadeIn"
+                      className="h-8 px-4 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-100 disabled:text-slate-400 disabled:cursor-not-allowed text-white text-xs font-semibold rounded-lg shadow-sm transition-colors cursor-pointer flex items-center gap-1.5"
                     >
-                      Import configuration
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Import</span>
                     </button>
                   </div>
                 </div>
@@ -720,9 +774,9 @@ export default function App() {
             </div>
 
             {/* Step 2: Project Profile Setup Options */}
-            <div className="border-t border-slate-205 pt-5 space-y-4">
+            <div className="border-t border-slate-200 pt-5 space-y-4">
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 border rounded-md font-mono font-bold">STEP 2</span>
+                <span className="px-2 py-0.5 text-[10px] bg-slate-100 text-slate-600 border border-slate-200 rounded-md font-mono font-bold">STEP 2</span>
                 <h2 className="text-base font-bold text-slate-900 tracking-tight font-sans">
                   Configure Environment & Targets
                 </h2>
@@ -734,10 +788,7 @@ export default function App() {
                   <label className="block text-[11px] font-bold text-slate-600 font-mono uppercase tracking-wider">
                     PHP version runtime target:
                   </label>
-                  <div
-                    className="grid gap-1 px-1 py-1 bg-slate-100/60 rounded-xl border"
-                    style={{ gridTemplateColumns: `repeat(${PHP_VERSIONS.length}, minmax(0, 1fr))` }}
-                  >
+                  <div className="grid grid-cols-4 sm:grid-cols-8 gap-1 p-1 bg-slate-100 rounded-xl border border-slate-200">
                     {PHP_VERSIONS.map(({ value }) => {
                       const label = formatPhpVersion(value);
                       const isSelected = config.phpVersion === value;
@@ -746,9 +797,9 @@ export default function App() {
                           key={value}
                           type="button"
                           onClick={() => setConfig(prev => ({ ...prev, phpVersion: value }))}
-                          className={`py-1 text-center font-bold text-[10.5px] rounded-lg border transition-all cursor-pointer ${
+                          className={`h-7.5 text-center font-bold text-xs rounded-lg border transition-colors cursor-pointer flex items-center justify-center font-mono ${
                             isSelected
-                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-md font-extrabold font-mono'
+                              ? 'bg-indigo-600 text-white border-indigo-600 shadow-sm'
                               : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                           }`}
                         >
@@ -764,13 +815,12 @@ export default function App() {
                   <label className="block text-[11px] font-bold text-slate-600 font-mono uppercase tracking-wider">
                     PHPStan target generation format:
                   </label>
-                  <div className="bg-slate-100 border border-slate-200 text-slate-700 px-3.5 py-1.5 rounded-xl font-bold font-mono text-xs flex items-center justify-between h-[34px] shadow-sm">
+                  <div className="bg-slate-100 border border-slate-200 text-slate-700 px-3.5 py-1.5 rounded-xl font-bold font-mono text-xs flex items-center justify-between h-[36px] shadow-sm">
                     <span className="text-slate-800">CJS / Neon 2.x</span>
                     <span className="text-[8px] font-mono px-2 py-0.5 bg-emerald-600 text-white rounded-full uppercase tracking-wider font-extrabold leading-none">Active format</span>
                   </div>
                 </div>
               </div>
-
 
             </div>
           </section>
@@ -806,7 +856,7 @@ export default function App() {
               />
               
               <div className="flex justify-between text-[10px] font-mono text-slate-400 px-1">
-                {['0','1','2','3','4','5','6','7','8','9','10','max'].map((lbl, idx) => (
+                {['0','1','2','3','4','5','6','7','8','9','10','max'].map((lbl) => (
                   <span 
                     key={lbl} 
                     onClick={() => {
@@ -858,7 +908,7 @@ export default function App() {
                 {/* Read-Only synchronized PHP analysis version indicator */}
                 <div className="space-y-1.5 opacity-85">
                   <label className="block text-xs font-medium text-slate-500">PHP Analysis Version Target</label>
-                  <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 text-xs font-mono font-bold flex items-center justify-between h-[34px]">
+                  <div className="bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-700 text-xs font-mono font-bold flex items-center justify-between h-[36px]">
                     <span>PHP {formatPhpVersion(config.phpVersion)}</span>
                     <span className="text-[10px] bg-slate-200 px-1.5 py-0.5 rounded text-slate-600 font-normal">{config.phpVersion}</span>
                   </div>
@@ -874,12 +924,13 @@ export default function App() {
                       onChange={(e) => setNewPath(e.target.value)}
                       placeholder="e.g. src"
                       id="add-path-input"
-                      className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+                      className="flex-1 h-9 bg-white border border-slate-300 rounded-lg px-3 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       onKeyDown={(e) => { if (e.key === 'Enter') addPath(); }}
                     />
                     <button
                       onClick={addPath}
-                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all border border-slate-300 cursor-pointer"
+                      className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300 cursor-pointer flex items-center justify-center shrink-0"
+                      title="Add path"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -894,7 +945,7 @@ export default function App() {
                       </span>
                     ))}
                   </div>
-                  <p className="text-[10px] text-indigo-600/95 leading-snug mt-1 pt-1 border-t border-slate-100">
+                  <p className="text-[10px] text-indigo-600 leading-snug mt-1 pt-1 border-t border-slate-100">
                     💡 <strong>Pro Tip:</strong> Include your <code className="font-mono text-[9px] bg-slate-100 border px-1 rounded">tests</code> path to static analyze test mock constraints and assert assertions!
                   </p>
                 </div>
@@ -909,12 +960,13 @@ export default function App() {
                       onChange={(e) => setNewExclude(e.target.value)}
                       placeholder="e.g. vendor"
                       id="add-exclude-input"
-                      className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
+                      className="flex-1 h-9 bg-white border border-slate-300 rounded-lg px-3 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
                       onKeyDown={(e) => { if (e.key === 'Enter') addExclude(); }}
                     />
                     <button
                       onClick={addExclude}
-                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all border border-slate-300 cursor-pointer"
+                      className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300 cursor-pointer flex items-center justify-center shrink-0"
+                      title="Add exclude path"
                     >
                       <Plus className="w-4 h-4" />
                     </button>
@@ -931,68 +983,99 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Bootstrap files */}
-                <div className="space-y-2" onMouseEnter={() => setHoveredRule('bootstrapFiles')} onMouseLeave={() => setHoveredRule(null)}>
-                  <label className="block text-xs font-medium text-slate-700">Bootstraps (bootstrapFiles)</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newBootstrap}
-                      onChange={(e) => setNewBootstrap(e.target.value)}
-                      placeholder="e.g. phpstan-bootstrap.php"
-                      id="add-bootstrap-input"
-                      className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
-                      onKeyDown={(e) => { if (e.key === 'Enter') addBootstrap(); }}
-                    />
-                    <button
-                      onClick={addBootstrap}
-                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all border border-slate-300 cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {config.bootstrapFiles.map((b, idx) => (
-                      <span key={idx} className="flex items-center gap-1 text-[11px] px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-slate-700">
-                        {b}
-                        <button onClick={() => removeBootstrap(idx)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
-                          <Trash2 className="w-3 h-3" />
-                        </button>
+                {/* Collapsible Advanced Paths: Bootstraps & Scan Files */}
+                <div className="sm:col-span-2 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsAdvancedPathsOpen(!isAdvancedPathsOpen)}
+                    className="w-full flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl text-xs text-slate-700 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="w-3.5 h-3.5 text-indigo-600" />
+                      <span className="font-semibold text-xs text-slate-800">
+                        Advanced Path Configuration (Bootstraps & Scan Files)
                       </span>
-                    ))}
-                  </div>
-                </div>
+                      {(config.bootstrapFiles.length > 0 || config.autoloadFiles.length > 0) && (
+                        <span className="px-1.5 py-0.2 bg-indigo-100 text-indigo-700 rounded text-[10px] font-semibold font-mono">
+                          {config.bootstrapFiles.length + config.autoloadFiles.length} configured
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 text-[11px] text-slate-400 font-mono">
+                      <span>{isAdvancedPathsOpen ? 'Hide' : 'Configure'}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isAdvancedPathsOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </button>
 
-                {/* Autoload files */}
-                <div className="space-y-2" onMouseEnter={() => setHoveredRule('autoloadFiles')} onMouseLeave={() => setHoveredRule(null)}>
-                  <label className="block text-xs font-medium text-slate-700">Scan Files (scanFiles)</label>
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      value={newAutoload}
-                      onChange={(e) => setNewAutoload(e.target.value)}
-                      placeholder="e.g. helpers/functions.php"
-                      id="add-autoload-input"
-                      className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
-                      onKeyDown={(e) => { if (e.key === 'Enter') addAutoload(); }}
-                    />
-                    <button
-                      onClick={addAutoload}
-                      className="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-all border border-slate-300 cursor-pointer"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5 pt-1">
-                    {config.autoloadFiles.map((f, idx) => (
-                      <span key={idx} className="flex items-center gap-1 text-[11px] px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-slate-700">
-                        {f}
-                        <button onClick={() => removeAutoload(idx)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
-                          <Trash2 className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
+                  {isAdvancedPathsOpen && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 mt-1">
+                      {/* Bootstrap files */}
+                      <div className="space-y-2" onMouseEnter={() => setHoveredRule('bootstrapFiles')} onMouseLeave={() => setHoveredRule(null)}>
+                        <label className="block text-xs font-medium text-slate-700">Bootstraps (bootstrapFiles)</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newBootstrap}
+                            onChange={(e) => setNewBootstrap(e.target.value)}
+                            placeholder="e.g. phpstan-bootstrap.php"
+                            id="add-bootstrap-input"
+                            className="flex-1 h-9 bg-white border border-slate-300 rounded-lg px-3 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            onKeyDown={(e) => { if (e.key === 'Enter') addBootstrap(); }}
+                          />
+                          <button
+                            onClick={addBootstrap}
+                            className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300 cursor-pointer flex items-center justify-center shrink-0"
+                            title="Add bootstrap file"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {config.bootstrapFiles.map((b, idx) => (
+                            <span key={idx} className="flex items-center gap-1 text-[11px] px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-slate-700">
+                              {b}
+                              <button onClick={() => removeBootstrap(idx)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Autoload files */}
+                      <div className="space-y-2" onMouseEnter={() => setHoveredRule('autoloadFiles')} onMouseLeave={() => setHoveredRule(null)}>
+                        <label className="block text-xs font-medium text-slate-700">Scan Files (scanFiles)</label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={newAutoload}
+                            onChange={(e) => setNewAutoload(e.target.value)}
+                            placeholder="e.g. helpers/functions.php"
+                            id="add-autoload-input"
+                            className="flex-1 h-9 bg-white border border-slate-300 rounded-lg px-3 text-slate-800 placeholder-slate-400 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                            onKeyDown={(e) => { if (e.key === 'Enter') addAutoload(); }}
+                          />
+                          <button
+                            onClick={addAutoload}
+                            className="h-9 w-9 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg transition-colors border border-slate-300 cursor-pointer flex items-center justify-center shrink-0"
+                            title="Add autoload file"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {config.autoloadFiles.map((f, idx) => (
+                            <span key={idx} className="flex items-center gap-1 text-[11px] px-2 py-0.5 bg-slate-50 border border-slate-200 rounded text-slate-700">
+                              {f}
+                              <button onClick={() => removeAutoload(idx)} className="text-slate-400 hover:text-slate-600 cursor-pointer">
+                                <Trash2 className="w-3 h-3" />
+                              </button>
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
               </div>
@@ -1081,112 +1164,223 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* checkImplicitMixed */}
-                <div 
-                  className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
-                  onMouseEnter={() => setHoveredRule('reportIgnoresWithoutComments')}
-                  onMouseLeave={() => setHoveredRule(null)}
-                  onClick={() => setConfig(prev => ({
-                    ...prev,
-                    strictRules: { ...prev.strictRules, reportIgnoresWithoutComments: !(prev.strictRules.reportIgnoresWithoutComments ?? false) }
-                  }))}
-                >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={config.strictRules.reportIgnoresWithoutComments ?? false}
-                    className="mt-1 accent-indigo-600 rounded focus:ring-0"
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-800 select-none">Require Ignore Comments</label>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Enforces reasoned `@phpstan-ignore` comments and rejects broad ignore-line shortcuts.
-                    </p>
-                  </div>
-                </div>
+                {/* Collapsible Advanced Strictness Checks */}
+                <div className="sm:col-span-2 lg:col-span-3 pt-2 border-t border-slate-100">
+                  <button
+                    type="button"
+                    onClick={() => setIsAdvancedStrictnessOpen(!isAdvancedStrictnessOpen)}
+                    className="w-full flex items-center justify-between p-2.5 bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl text-xs text-slate-700 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="w-3.5 h-3.5 text-indigo-600" />
+                      <span className="font-semibold text-xs text-slate-800">
+                        Advanced Strictness Constraints (Level 10+ Checks & Comment Rules)
+                      </span>
+                      {((config.strictRules.reportIgnoresWithoutComments ? 1 : 0) + 
+                        (config.strictRules.checkImplicitMixed ? 1 : 0) + 
+                        (config.strictRules.checkBenevolentUnionTypes ? 1 : 0)) > 0 && (
+                        <span className="px-1.5 py-0.2 bg-indigo-100 text-indigo-700 rounded text-[10px] font-semibold font-mono">
+                          {((config.strictRules.reportIgnoresWithoutComments ? 1 : 0) + 
+                            (config.strictRules.checkImplicitMixed ? 1 : 0) + 
+                            (config.strictRules.checkBenevolentUnionTypes ? 1 : 0))} active
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-1 text-[11px] text-slate-400 font-mono">
+                      <span>{isAdvancedStrictnessOpen ? 'Hide' : 'Configure'}</span>
+                      <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${isAdvancedStrictnessOpen ? 'rotate-180' : ''}`} />
+                    </div>
+                  </button>
 
-                {/* checkImplicitMixed */}
-                <div 
-                  className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
-                  onMouseEnter={() => setHoveredRule('checkImplicitMixed')}
-                  onMouseLeave={() => setHoveredRule(null)}
-                  onClick={() => setConfig(prev => ({
-                    ...prev,
-                    strictRules: { ...prev.strictRules, checkImplicitMixed: !(prev.strictRules.checkImplicitMixed ?? false) }
-                  }))}
-                >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={config.strictRules.checkImplicitMixed ?? false}
-                    className="mt-1 accent-indigo-600 rounded focus:ring-0"
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-800 select-none">Check Implicit Mixed</label>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Enables the level-10 implicit mixed checks early, even when you are still below PHPStan level 10.
-                    </p>
-                  </div>
-                </div>
+                  {isAdvancedStrictnessOpen && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-3 mt-1">
+                      {/* reportIgnoresWithoutComments */}
+                      <div 
+                        className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
+                        onMouseEnter={() => setHoveredRule('reportIgnoresWithoutComments')}
+                        onMouseLeave={() => setHoveredRule(null)}
+                        onClick={() => setConfig(prev => ({
+                          ...prev,
+                          strictRules: { ...prev.strictRules, reportIgnoresWithoutComments: !(prev.strictRules.reportIgnoresWithoutComments ?? false) }
+                        }))}
+                      >
+                        <input
+                          type="checkbox"
+                          readOnly
+                          checked={config.strictRules.reportIgnoresWithoutComments ?? false}
+                          className="mt-1 accent-indigo-600 rounded focus:ring-0"
+                        />
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-800 select-none">Require Ignore Comments</label>
+                          <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                            Enforces reasoned `@phpstan-ignore` comments and rejects broad ignore-line shortcuts.
+                          </p>
+                        </div>
+                      </div>
 
-                {/* checkBenevolentUnionTypes */}
-                <div 
-                  className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer sm:col-span-2 lg:col-span-1"
-                  onMouseEnter={() => setHoveredRule('checkBenevolentUnionTypes')}
-                  onMouseLeave={() => setHoveredRule(null)}
-                  onClick={() => setConfig(prev => ({
-                    ...prev,
-                    strictRules: { ...prev.strictRules, checkBenevolentUnionTypes: !(prev.strictRules.checkBenevolentUnionTypes ?? false) }
-                  }))}
-                >
-                  <input
-                    type="checkbox"
-                    readOnly
-                    checked={config.strictRules.checkBenevolentUnionTypes ?? false}
-                    className="mt-1 accent-indigo-600 rounded focus:ring-0"
-                  />
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-800 select-none">Check Benevolent Unions</label>
-                    <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
-                      Tightens checks for benevolent unions like array-key that PHPStan normally keeps lenient even at high levels.
-                    </p>
-                  </div>
+                      {/* checkImplicitMixed */}
+                      <div 
+                        className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer"
+                        onMouseEnter={() => setHoveredRule('checkImplicitMixed')}
+                        onMouseLeave={() => setHoveredRule(null)}
+                        onClick={() => setConfig(prev => ({
+                          ...prev,
+                          strictRules: { ...prev.strictRules, checkImplicitMixed: !(prev.strictRules.checkImplicitMixed ?? false) }
+                        }))}
+                      >
+                        <input
+                          type="checkbox"
+                          readOnly
+                          checked={config.strictRules.checkImplicitMixed ?? false}
+                          className="mt-1 accent-indigo-600 rounded focus:ring-0"
+                        />
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-800 select-none">Check Implicit Mixed</label>
+                          <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                            Enables the level-10 implicit mixed checks early, even when you are still below PHPStan level 10.
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* checkBenevolentUnionTypes */}
+                      <div 
+                        className="flex items-start gap-3 p-3 bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-300 rounded-xl transition-all cursor-pointer sm:col-span-2 lg:col-span-1"
+                        onMouseEnter={() => setHoveredRule('checkBenevolentUnionTypes')}
+                        onMouseLeave={() => setHoveredRule(null)}
+                        onClick={() => setConfig(prev => ({
+                          ...prev,
+                          strictRules: { ...prev.strictRules, checkBenevolentUnionTypes: !(prev.strictRules.checkBenevolentUnionTypes ?? false) }
+                        }))}
+                      >
+                        <input
+                          type="checkbox"
+                          readOnly
+                          checked={config.strictRules.checkBenevolentUnionTypes ?? false}
+                          className="mt-1 accent-indigo-600 rounded focus:ring-0"
+                        />
+                        <div>
+                          <label className="block text-xs font-semibold text-slate-800 select-none">Check Benevolent Unions</label>
+                          <p className="text-[10px] text-slate-500 mt-0.5 leading-relaxed">
+                            Tightens checks for benevolent unions like array-key that PHPStan normally keeps lenient even at high levels.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
               </div>
             </div>
 
-            {/* Folder 3: Custom Extension and Rules Library */}
+            {/* Folder 3: Unified Extension & Extra Rules Library */}
             <PhpStanExtensionLibrary
-              config={config}
-              onChangeConfig={setConfig}
-              onAddToast={showToast}
-              onHoverRule={setHoveredRule}
-            />
-
-            <RulesBeyondCoreAdvisor
               config={config}
               activePresetId={activePresetId}
               dependencyScan={composerDependencyScan}
               onChangeConfig={setConfig}
               onAddToast={showToast}
+              onHoverRule={setHoveredRule}
             />
 
             {/* Folder 4: Baselines and Debt mitigation */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm space-y-4" onMouseEnter={() => setHoveredRule('baseline')} onMouseLeave={() => setHoveredRule(null)}>
-              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
-                <div className="flex items-center gap-1.5">
-                  <FileText className="w-4 h-4 text-indigo-600" />
-                  <h3 className="font-semibold text-xs font-mono uppercase tracking-wider text-slate-800">
-                    4. Baseline Technical Debt File
-                  </h3>
+            <div 
+              className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm"
+              onMouseEnter={() => setHoveredRule('baseline')} 
+              onMouseLeave={() => setHoveredRule(null)}
+            >
+              {config.baseline ? (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                    <div className="flex items-center gap-1.5">
+                      <FileText className="w-4 h-4 text-indigo-600" />
+                      <h3 className="font-semibold text-xs font-mono uppercase tracking-wider text-slate-800">
+                        4. Baseline Technical Debt File
+                      </h3>
+                      <span className="text-[9px] font-mono uppercase px-1.5 py-0.2 bg-emerald-50 text-emerald-700 rounded border border-emerald-200 font-bold">
+                        Active
+                      </span>
+                    </div>
+                    
+                    <button
+                      onClick={() => {
+                        setConfig(prev => ({ ...prev, baseline: null }));
+                        showToast('Disabled technical debt baseline file.', 'info');
+                      }}
+                      className="h-7 px-2.5 text-xs font-semibold border rounded-lg cursor-pointer transition-colors bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
+                      id="toggle-baseline-btn"
+                    >
+                      Disable Baseline
+                    </button>
+                  </div>
+
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] text-slate-500">Baseline target path:</label>
+                        <input
+                          type="text"
+                          value={config.baseline.path}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setConfig(prev => {
+                              if (!prev.baseline) return prev;
+                              return { ...prev, baseline: { ...prev.baseline, path: val } };
+                            });
+                          }}
+                          id="baseline-path-input"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-800 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+
+                      <div className="flex flex-col justify-end space-y-1 pb-1">
+                        <div 
+                          className="flex items-center gap-2 cursor-pointer"
+                          onClick={() => {
+                            setConfig(prev => {
+                              if (!prev.baseline) return prev;
+                              return { ...prev, baseline: { ...prev.baseline, warningAboutStale: !prev.baseline.warningAboutStale } };
+                            });
+                          }}
+                        >
+                          <input
+                            type="checkbox"
+                            readOnly
+                            checked={config.baseline.warningAboutStale}
+                            className="accent-indigo-600 rounded focus:ring-0"
+                          />
+                          <span className="text-xs text-slate-700 select-none font-medium">Warn user about stale errors</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-slate-600 leading-normal bg-indigo-50 border border-indigo-100 p-2.5 rounded-lg">
+                      <strong>Notice:</strong> Adopt immediate level checks without updating existing deprecated components. Create the baseline using: <strong className="text-indigo-600 font-mono text-[10px]">vendor/bin/phpstan analyse --generate-baseline</strong>
+                    </p>
+                  </div>
                 </div>
-                
-                <button
-                  onClick={() => {
-                    if (config.baseline) {
-                      setConfig(prev => ({ ...prev, baseline: null }));
-                    } else {
+              ) : (
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg text-slate-400 shrink-0">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h3 className="font-semibold text-xs font-mono uppercase tracking-wider text-slate-800">
+                          4. Baseline Technical Debt File
+                        </h3>
+                        <span className="text-[9px] font-mono px-1.5 py-0.2 bg-slate-100 text-slate-500 rounded border border-slate-200">
+                          Optional / Inactive
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        Freeze existing legacy errors while enforcing highest rules on new files.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
                       setConfig(prev => ({
                         ...prev,
                         baseline: {
@@ -1195,68 +1389,15 @@ export default function App() {
                           warningAboutStale: true
                         }
                       }));
-                    }
-                  }}
-                  className={`text-[10px] px-2 py-0.5 border rounded cursor-pointer transition-colors ${
-                    config.baseline 
-                      ? 'bg-rose-50 border-rose-200 text-rose-700 font-medium' 
-                      : 'bg-slate-50 border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'
-                  }`}
-                  id="toggle-baseline-btn"
-                >
-                  {config.baseline ? 'Disable Baseline' : 'Activate Baseline'}
-                </button>
-              </div>
-
-              {config.baseline ? (
-                <div className="space-y-3 p-3 bg-slate-50 border border-slate-200 rounded-xl">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[10px] text-slate-500">Baseline target path:</label>
-                      <input
-                        type="text"
-                        value={config.baseline.path}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          setConfig(prev => {
-                            if (!prev.baseline) return prev;
-                            return { ...prev, baseline: { ...prev.baseline, path: val } };
-                          });
-                        }}
-                        id="baseline-path-input"
-                        className="w-full bg-white border border-slate-300 rounded px-2 py-1 text-slate-800 text-xs font-mono focus:outline-none focus:ring-1 focus:ring-indigo-500/50"
-                      />
-                    </div>
-
-                    <div className="flex flex-col justify-end space-y-1 pb-1">
-                      <div 
-                        className="flex items-center gap-2 cursor-pointer"
-                        onClick={() => {
-                          setConfig(prev => {
-                            if (!prev.baseline) return prev;
-                            return { ...prev, baseline: { ...prev.baseline, warningAboutStale: !prev.baseline.warningAboutStale } };
-                          });
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          readOnly
-                          checked={config.baseline.warningAboutStale}
-                          className="accent-indigo-600 rounded focus:ring-0"
-                        />
-                        <span className="text-[10px] text-slate-600 select-none font-medium">Warn user about stale errors</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <p className="text-[10px] text-slate-600 leading-normal bg-indigo-50 border border-indigo-100 p-2 rounded-lg">
-                    <strong>Notice:</strong> Adopt immediateLevel checks without updating existing deprecated components. Create the baseline using: <strong className="text-indigo-600 font-mono text-[9px]">"vendor/bin/phpstan analyse --generate-baseline"</strong>.
-                  </p>
+                      showToast('Enabled technical debt baseline file.', 'success');
+                    }}
+                    className="h-8 px-3 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 rounded-lg cursor-pointer transition-colors shrink-0 flex items-center gap-1.5"
+                    id="toggle-baseline-btn"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Enable Baseline</span>
+                  </button>
                 </div>
-              ) : (
-                <p className="text-xs text-slate-550">
-                  No active baseline config. PHPStan will report all active parsing errors directly to stdout.
-                </p>
               )}
             </div>
 
@@ -1271,7 +1412,7 @@ export default function App() {
         </div>
 
         {/* Right Preview column layout */}
-        <div className="lg:col-span-5 space-y-6 order-1 lg:order-2 min-w-0 overflow-x-hidden">
+        <div className="lg:col-span-5 space-y-6 order-2 min-w-0 overflow-x-hidden">
           
           {/* Real-time formatted Neon visual codesheet */}
           <NeonEditor
@@ -1308,9 +1449,24 @@ export default function App() {
 
             {hoveredRule && RULE_EXPLANATIONS[hoveredRule] ? (
               <div className="space-y-2.5 animate-fadeIn">
-                <span className="text-[10px] font-mono px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded">
-                  {hoveredRule}
-                </span>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <span className="text-[10px] font-mono px-1.5 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded font-semibold">
+                    {hoveredRule}
+                  </span>
+                  {RULE_EXPLANATIONS[hoveredRule].refLink && (
+                    <a
+                      href={RULE_EXPLANATIONS[hoveredRule].refLink}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1 text-[10px] text-indigo-600 hover:text-indigo-800 font-medium hover:underline cursor-pointer"
+                      id="rule-doc-reference-link"
+                      title="Open official documentation"
+                    >
+                      <span>{RULE_EXPLANATIONS[hoveredRule].refLabel || 'Official docs'}</span>
+                      <ExternalLink className="w-3 h-3" />
+                    </a>
+                  )}
+                </div>
                 <p className="text-xs text-slate-700 font-semibold animate-fadeIn">
                   {RULE_EXPLANATIONS[hoveredRule].summary}
                 </p>
@@ -1324,9 +1480,37 @@ export default function App() {
                 </div>
               </div>
             ) : (
-              <p className="text-xs text-slate-500 leading-normal">
-                Hover over options, input fields, or toggles inside the configuration sheet to get detailed rules descriptions and static analysis trades.
-              </p>
+              <div className="space-y-3">
+                <p className="text-xs text-slate-500 leading-normal">
+                  Hover over options, input fields, or toggles inside the configuration sheet to get detailed rules descriptions and static analysis trades.
+                </p>
+                <div className="pt-2 border-t border-slate-100">
+                  <span className="text-[10px] font-mono uppercase text-slate-400 font-bold block mb-1.5">
+                    Official Reference Links:
+                  </span>
+                  <div className="flex flex-wrap items-center gap-2 text-[10px]">
+                    <a href="https://phpstan.org/config-reference" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-slate-600 hover:text-indigo-600 transition-colors">
+                      <span>Config Reference</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                    <span className="text-slate-300">•</span>
+                    <a href="https://phpstan.org/user-guide/rule-levels" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-slate-600 hover:text-indigo-600 transition-colors">
+                      <span>Rule Levels Guide</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                    <span className="text-slate-300">•</span>
+                    <a href="https://phpstan.org/user-guide/baseline" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-slate-600 hover:text-indigo-600 transition-colors">
+                      <span>The Baseline</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                    <span className="text-slate-300">•</span>
+                    <a href="https://phpstan.org/user-guide/extension-library" target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-slate-600 hover:text-indigo-600 transition-colors">
+                      <span>Extension Library</span>
+                      <ExternalLink className="w-2.5 h-2.5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
 
@@ -1334,13 +1518,24 @@ export default function App() {
 
       </main>
 
-      <footer className="bg-white border-t border-slate-200 px-6 py-4.5 mt-10 shadow-sm">
-        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© 2026 PHPStan Configurator by Lars Moelleken (github.com/voku).</p>
-          <div className="flex gap-4">
-            <a href="https://github.com/voku" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">GitHub Profiler</a>
-            <span className="text-slate-350">|</span>
-            <a href="https://phpstan.org" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">PHPStan Documentation</a>
+      <footer className="bg-white border-t border-slate-200 px-6 py-4 mt-auto shadow-sm">
+        <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+          <p>© 2026 PHPStan Configurator by Lars Moelleken (<a href="https://github.com/voku" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline font-medium">@voku</a>).</p>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px]">
+            <a href="https://github.com/voku/PHPStanConfigurator" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors flex items-center gap-1">
+              <Github className="w-3 h-3" />
+              <span>Repository</span>
+            </a>
+            <span className="text-slate-300">|</span>
+            <a href="https://phpstan.org" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">PHPStan Docs</a>
+            <span className="text-slate-300">|</span>
+            <a href="https://phpstan.org/config-reference" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">Config Reference</a>
+            <span className="text-slate-300">|</span>
+            <a href="https://phpstan.org/user-guide/rule-levels" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">Rule Levels</a>
+            <span className="text-slate-300">|</span>
+            <a href="https://phpstan.org/user-guide/extension-library" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">Extensions</a>
+            <span className="text-slate-300">|</span>
+            <a href="https://phpstan.org/user-guide/baseline" target="_blank" rel="noreferrer" className="hover:text-slate-800 transition-colors">Baseline</a>
           </div>
         </div>
       </footer>
@@ -1357,7 +1552,7 @@ export default function App() {
       {toast && (
         <div 
           id="toast-notification"
-          className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-750 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium animate-slideUp font-sans max-w-sm sm:max-w-md"
+          className="fixed bottom-6 right-6 z-50 bg-slate-900 border border-slate-700 text-white px-4 py-3 rounded-xl shadow-xl flex items-center gap-2.5 text-xs font-medium animate-slideUp font-sans max-w-sm sm:max-w-md"
         >
           <div className="p-1 bg-indigo-500/15 rounded-lg flex items-center justify-center shrink-0">
             <Sparkles className="w-4 h-4 text-indigo-400" />
@@ -1367,7 +1562,7 @@ export default function App() {
           </div>
           <button 
             onClick={() => setToast(null)}
-            className="text-slate-400 hover:text-slate-200 ml-2 font-bold px-1.5 py-0.5 rounded transition-colors text-sm hover:bg-slate-800"
+            className="text-slate-400 hover:text-slate-200 ml-2 font-bold px-1.5 py-0.5 rounded transition-colors text-sm hover:bg-slate-800 cursor-pointer"
             title="Dismiss notification"
           >
             ×

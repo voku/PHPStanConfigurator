@@ -7,6 +7,19 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 }
 
+html, body {
+  height: 100%;
+  min-height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
 body {
   font-family: var(--font-sans);
   background-color: #f8fafc; /* Elegant Slate-50 background for premium light Mode */

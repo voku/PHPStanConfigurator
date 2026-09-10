@@ -285,17 +285,80 @@ export const PRESETS: Preset[] = [
   }
 ];
 
-type RuleExplanation = { summary: string; rationale: string; trades: string };
+export type RuleExplanation = {
+  summary: string;
+  rationale: string;
+  trades: string;
+  refLink?: string;
+  refLabel?: string;
+};
 
 const REFERENCE_KEY_ALIASES: Record<string, string> = {
   autoloadFiles: 'scanFiles',
 };
 
+const LOCAL_RULE_DOC_LINKS: Record<string, { refLink: string; refLabel: string }> = {
+  level: {
+    refLink: 'https://phpstan.org/user-guide/rule-levels',
+    refLabel: 'PHPStan Rule Levels Guide (0–10)',
+  },
+  treatPhpDocTypesAsCertain: {
+    refLink: 'https://phpstan.org/config-reference#vague-typehints',
+    refLabel: 'Config Reference: Vague typehints',
+  },
+  bleedingEdge: {
+    refLink: 'https://phpstan.org/blog/what-is-bleeding-edge',
+    refLabel: 'PHPStan Blog: What is Bleeding Edge?',
+  },
+  bootstrapFiles: {
+    refLink: 'https://phpstan.org/config-reference#bootstrap',
+    refLabel: 'Config Reference: Bootstrap',
+  },
+  autoloadFiles: {
+    refLink: 'https://phpstan.org/config-reference#discovering-symbols',
+    refLabel: 'Config Reference: Discovering symbols',
+  },
+  baseline: {
+    refLink: 'https://phpstan.org/user-guide/baseline',
+    refLabel: 'PHPStan User Guide: The Baseline',
+  },
+  reportUnmatchedIgnoredErrors: {
+    refLink: 'https://phpstan.org/config-reference#ignoring-errors',
+    refLabel: 'Config Reference: Ignoring errors',
+  },
+  reportIgnoresWithoutComments: {
+    refLink: 'https://phpstan.org/config-reference#ignoring-errors',
+    refLabel: 'Config Reference: Ignoring errors',
+  },
+  checkImplicitMixed: {
+    refLink: 'https://phpstan.org/config-reference',
+    refLabel: 'PHPStan Config Reference: Implicit mixed',
+  },
+  checkBenevolentUnionTypes: {
+    refLink: 'https://phpstan.org/config-reference',
+    refLabel: 'PHPStan Config Reference: Benevolent union types',
+  },
+  sidzIgnoreMagicNumbers: {
+    refLink: 'https://github.com/sidz/phpstan-rules',
+    refLabel: 'sidz/phpstan-rules on GitHub',
+  },
+  sidzIgnoreNumericStrings: {
+    refLink: 'https://github.com/sidz/phpstan-rules',
+    refLabel: 'sidz/phpstan-rules on GitHub',
+  },
+};
+
 function withPhpStanReference(key: string, explanation: RuleExplanation): RuleExplanation {
   const referenceKey = REFERENCE_KEY_ALIASES[key] ?? key;
   const reference = PHPSTAN_CONFIG_REFERENCE_BY_KEY[referenceKey];
+  const docLinkInfo = LOCAL_RULE_DOC_LINKS[key];
+
   if (!reference) {
-    return explanation;
+    return {
+      ...explanation,
+      refLink: docLinkInfo?.refLink ?? explanation.refLink,
+      refLabel: docLinkInfo?.refLabel ?? explanation.refLabel,
+    };
   }
 
   const rationaleParts = [reference.summary];
@@ -309,6 +372,8 @@ function withPhpStanReference(key: string, explanation: RuleExplanation): RuleEx
   return {
     ...explanation,
     rationale: rationaleParts.join(' '),
+    refLink: docLinkInfo?.refLink ?? explanation.refLink ?? 'https://phpstan.org/config-reference',
+    refLabel: docLinkInfo?.refLabel ?? explanation.refLabel ?? `PHPStan Config Reference: ${reference.section}`,
   };
 }
 

@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Copy, Download, Check, X, FileCode, ShieldCheck, Terminal, ShieldAlert, Info } from 'lucide-react';
+import { Copy, Download, Check, X, FileCode, ShieldCheck, Terminal, ShieldAlert, Info, ExternalLink } from 'lucide-react';
 import { PhpStanConfig } from '../types';
 import { getComposerCommand, getExportGuidanceBlocks } from '../lib/export';
 
@@ -289,26 +289,38 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
 
               {/* Action Buttons Footer */}
               <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-                <p className="text-[11px] text-slate-500 font-bold font-mono">
-                  Lars Moelleken (voku) Configurator
-                </p>
+                <div className="flex items-center gap-2 text-[11px] text-slate-500 font-mono">
+                  <span>Lars Moelleken (<a href="https://github.com/voku" target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline">voku</a>)</span>
+                  <span className="text-slate-300">•</span>
+                  <a 
+                    href="https://phpstan.org/config-reference" 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-slate-600 hover:text-indigo-600 flex items-center gap-1 hover:underline transition-colors"
+                    title="PHPStan Configuration Reference"
+                  >
+                    <span>Config Reference</span>
+                    <ExternalLink className="w-2.5 h-2.5" />
+                  </a>
+                </div>
 
-                <div className="flex w-full sm:w-auto items-center justify-end gap-3.5">
+                <div className="flex w-full sm:w-auto items-center justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={handleCopy}
-                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4 py-2 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-xl shadow-sm transition-all cursor-pointer active:scale-95 duration-100"
+                    className="flex-1 sm:flex-initial h-9 px-4 bg-white hover:bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 rounded-lg shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     id="modal-copy-btn"
+                    title="Copy NEON configuration"
                   >
                     {copied ? (
                       <>
-                        <Check className="w-4 h-4 text-emerald-600 animate-bounce" />
-                        <span className="text-emerald-700">Copied NEON Spec!</span>
+                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <span className="text-emerald-700">Copied</span>
                       </>
                     ) : (
                       <>
-                        <Copy className="w-4 h-4 text-slate-500" />
-                        <span>Copy NEON Spec</span>
+                        <Copy className="w-3.5 h-3.5 text-slate-500" />
+                        <span>Copy</span>
                       </>
                     )}
                   </button>
@@ -316,11 +328,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose, neonC
                   <button
                     type="button"
                     onClick={handleDownload}
-                    className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-4.5 py-2 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white rounded-xl shadow-sm transition-all hover:shadow cursor-pointer active:scale-95 duration-100"
+                    className="flex-1 sm:flex-initial h-9 px-4 bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white rounded-lg shadow-sm transition-colors cursor-pointer flex items-center justify-center gap-1.5"
                     id="modal-download-btn"
+                    title="Download phpstan.neon.dist"
                   >
-                    <Download className="w-4 h-4" />
-                    <span>Download phpstan.neon.dist</span>
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download</span>
                   </button>
                 </div>
               </div>

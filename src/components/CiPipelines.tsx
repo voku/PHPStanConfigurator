@@ -106,31 +106,31 @@ pipelines:
       </div>
 
       <p className="text-[11px] text-slate-600 leading-normal">
-        Static analysis is best run on every push. Select your CI framework to grab a preset build script using level <strong className="text-slate-800 font-mono font-semibold">{level}</strong> and targets: <strong className="text-slate-805 font-mono">[{pathsString}]</strong>.
+        Static analysis is best run on every push. Select your CI framework to grab a preset build script using level <strong className="text-slate-800 font-mono font-semibold">{level}</strong> and targets: <strong className="text-slate-800 font-mono">[{pathsString}]</strong>.
       </p>
 
       {/* Tabs */}
-      <div className="flex bg-slate-50 border border-slate-200 p-1 rounded-lg text-xs font-mono">
+      <div className="flex flex-wrap sm:flex-nowrap bg-slate-100 border border-slate-200 p-1 rounded-lg text-xs font-mono gap-1">
         <button
           onClick={() => setActiveTab('github')}
-          className={`flex-1 py-1 px-3 rounded-md transition-all font-medium text-center cursor-pointer ${
-            activeTab === 'github' ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+          className={`flex-1 py-1.5 px-3 rounded-md transition-colors font-semibold text-center cursor-pointer ${
+            activeTab === 'github' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           GitHub Actions
         </button>
         <button
           onClick={() => setActiveTab('gitlab')}
-          className={`flex-1 py-1 px-3 rounded-md transition-all font-medium text-center cursor-pointer ${
-            activeTab === 'gitlab' ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+          className={`flex-1 py-1.5 px-3 rounded-md transition-colors font-semibold text-center cursor-pointer ${
+            activeTab === 'gitlab' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           GitLab CI
         </button>
         <button
           onClick={() => setActiveTab('bitbucket')}
-          className={`flex-1 py-1 px-3 rounded-md transition-all font-medium text-center cursor-pointer ${
-            activeTab === 'bitbucket' ? 'bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm' : 'text-slate-500 hover:text-slate-800'
+          className={`flex-1 py-1.5 px-3 rounded-md transition-colors font-semibold text-center cursor-pointer ${
+            activeTab === 'bitbucket' ? 'bg-white text-indigo-700 shadow-sm' : 'text-slate-600 hover:text-slate-900'
           }`}
         >
           BitBucket
@@ -139,15 +139,25 @@ pipelines:
 
       {/* Code Area */}
       <div className="relative">
-        <pre className="bg-slate-50 border border-slate-200 p-4 rounded-xl text-[11px] font-mono text-slate-800 leading-relaxed overflow-x-auto max-h-[160px]">
+        <pre className="bg-slate-50 border border-slate-200 p-4 pt-12 sm:pt-4 rounded-xl text-[11px] font-mono text-slate-800 leading-relaxed overflow-x-auto max-h-[160px]">
           <code>{getActiveCode()}</code>
         </pre>
         <button
           onClick={handleCopy}
-          className="absolute right-3 top-3 p-1.5 bg-white hover:bg-slate-50 border border-slate-200 hover:text-slate-800 rounded text-slate-500 transition-colors cursor-pointer shadow-sm animate-fadeIn"
+          className="absolute right-3 top-3 h-7 px-2 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 rounded-lg transition-colors cursor-pointer shadow-xs flex items-center gap-1.5 text-xs font-semibold"
           title="Copy snippet"
         >
-          {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+          {copied ? (
+            <>
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              <span className="text-emerald-700 text-[11px]">Copied</span>
+            </>
+          ) : (
+            <>
+              <Copy className="w-3.5 h-3.5 text-slate-500" />
+              <span className="text-[11px]">Copy</span>
+            </>
+          )}
         </button>
       </div>
     </div>
